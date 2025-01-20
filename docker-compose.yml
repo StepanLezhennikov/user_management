@@ -1,0 +1,15 @@
+services:
+  user_management:
+    build: .
+    ports:
+      - "8001:8001"
+    volumes:
+      - .:/app
+    networks:
+      - app-network
+    env_file: .env.example
+    entrypoint: "/entrypoint.sh"
+
+networks:
+  app-network:
+    driver: bridge
