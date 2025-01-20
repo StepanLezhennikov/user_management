@@ -1,0 +1,21 @@
+default_install_hook_types: [pre-commit, pre-push]
+fail_fast: true
+
+repos:
+- repo: https://github.com/psf/black
+  rev: 24.10.0
+  hooks:
+    - id: black
+      language_version: python3
+
+- repo: https://github.com/charliermarsh/ruff-pre-commit
+  rev: v0.8.6
+  hooks:
+    - id: ruff
+      args: ["--config", "pyproject.toml"]
+
+- repo: https://github.com/pycqa/isort
+  rev: 5.12.0
+  hooks:
+    - id: isort
+      args: [ '--order-by-type', '--length-sort', "--profile", "black", "--filter-files" ]
