@@ -12,9 +12,8 @@ RUN apt-get update && apt-get install -y \
 COPY pyproject.toml poetry.lock ./
 
 RUN pip install --upgrade pip && pip install --no-cache-dir poetry && \
-    poetry config virtualenvs.create false
-
-RUN poetry install --no-root --verbose
+    poetry config virtualenvs.create false && \
+    poetry install --no-root --verbose
 
 FROM python:3.12-alpine
 
