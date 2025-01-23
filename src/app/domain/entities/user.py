@@ -11,4 +11,4 @@ class User(BaseMixin):
     surname: str
     email: Email
     hashed_password: str
-    is_blocked: bool = False
+    is_blocked: bool
