@@ -4,7 +4,8 @@ from fastapi import Depends, FastAPI
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.app.models import User
-from src.app.database import Base, engine, get_db
+from src.app.db.base import Base
+from src.app.db.session import engine, get_db
 
 
 @asynccontextmanager

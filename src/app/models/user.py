@@ -1,6 +1,8 @@
+from datetime import datetime
+
 from sqlalchemy.orm import Mapped, mapped_column
 
-from src.app.database import Base
+from src.app.db.base import Base
 
 
 class User(Base):
@@ -12,4 +14,6 @@ class User(Base):
     first_name: Mapped[str]
     last_name: Mapped[str]
     hashed_password: Mapped[str]
-    is_superuser: Mapped[bool] = mapped_column(default=False)
+    is_blocked: Mapped[bool] = mapped_column(default=False)
+    created_at: Mapped[datetime] = mapped_column(default=datetime.now)
+    updated_at: Mapped[datetime] = mapped_column(default=datetime.now)

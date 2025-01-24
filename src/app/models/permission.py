@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy import Table, Column, ForeignKey
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 
-from src.app.database import Base
+from src.app.db.base import Base
 
 role_permission_table = Table(
     "role_permission",
