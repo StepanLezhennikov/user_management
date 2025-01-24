@@ -1,11 +1,10 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Depends
+from fastapi import Depends, FastAPI
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import Session
 
 from src.app.models import User
-from src.app.database import engine, Base, get_db
+from src.app.database import Base, engine, get_db
 
 
 @asynccontextmanager
@@ -13,6 +12,7 @@ async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield
+
 
 app = FastAPI(lifespan=lifespan)
 
@@ -25,7 +25,7 @@ async def read_root(session: AsyncSession = Depends(get_db)):
         first_name="John",
         last_name="Doe",
         hashed_password="hashed_password_example",
-        is_blocked=False
+        is_blocked=False,
     )
     session.add(new_user)
     await session.commit()
