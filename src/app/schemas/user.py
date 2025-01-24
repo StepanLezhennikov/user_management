@@ -10,5 +10,6 @@ class User(BaseModel):
     last_name: str
     is_blocked: bool = False
 
+
 class UserPrivate(User):
     hashed_password: str

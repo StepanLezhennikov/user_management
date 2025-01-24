@@ -1,10 +1,9 @@
 from datetime import datetime
 
-from sqlalchemy import Column, Table, ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import Table, Column, ForeignKey
+from sqlalchemy.orm import Mapped, relationship, mapped_column
 
 from src.app.database import Base
-
 
 role_permission_table = Table(
     "role_permission",
@@ -23,4 +22,6 @@ class Permission(Base):
     created_at: Mapped[datetime] = mapped_column(default=datetime.now())
     updated_at: Mapped[datetime] = mapped_column(default=datetime.now())
 
-    roles = relationship("Role", secondary=role_permission_table, back_populates="permissions")
+    roles = relationship(
+        "Role", secondary=role_permission_table, back_populates="permissions"
+    )

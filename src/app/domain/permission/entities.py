@@ -1,7 +1,8 @@
-from dataclasses import dataclass
 from enum import Enum
+from dataclasses import dataclass
 
 from app.domain.base_entity import BaseDTO
+
 
 class PermissionName(Enum):
     READ = "read"

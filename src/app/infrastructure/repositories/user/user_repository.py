@@ -1,11 +1,10 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.app.infrastructure.exceptions.user import UserNotFound
-from src.app.schemas.user import UserPrivate, User
 from src.app.models.user import User as SQLAlchemyUser
-from src.app.models.role import Role
+from src.app.schemas.user import User, UserPrivate
 from src.app.application.repositories.user import AUserRepository
+from src.app.infrastructure.exceptions.user import UserNotFound
 
 
 class UserRepository(AUserRepository):
@@ -17,7 +16,7 @@ class UserRepository(AUserRepository):
             first_name=user.first_name,
             last_name=user.last_name,
             hashed_password=user.hashed_password,
-            is_blocked=user.is_blocked
+            is_blocked=user.is_blocked,
         )
         session.add(added_user)
         await session.commit()

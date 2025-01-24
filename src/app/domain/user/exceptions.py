@@ -1,3 +1,2 @@
-
 class InvalidEmail(Exception):
     pass

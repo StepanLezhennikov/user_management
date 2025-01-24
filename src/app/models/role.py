@@ -1,7 +1,7 @@
 from datetime import datetime
 
-from sqlalchemy import Column, Table, ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import Table, Column, ForeignKey
+from sqlalchemy.orm import Mapped, relationship, mapped_column
 
 from src.app.database import Base
 
@@ -11,6 +11,7 @@ user_role_table = Table(
     Column("user_id", ForeignKey("users.id"), primary_key=True),
     Column("role_id", ForeignKey("roles.id"), primary_key=True),
 )
+
 
 class Role(Base):
     __tablename__ = "roles"

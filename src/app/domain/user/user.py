@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from pydantic import EmailStr
+
 from app.domain.base_entity import BaseDTO
 
 
