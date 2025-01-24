@@ -4,7 +4,7 @@ from uuid import UUID
 
 
 @dataclass
-class BaseMixin:
+class BaseDTO:
     id: UUID
     created_at: datetime
     updated_at: datetime

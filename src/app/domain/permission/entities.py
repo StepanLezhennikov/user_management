@@ -1,8 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum
-from uuid import UUID
 
-from src.app.domain.entities.base import BaseMixin
+from app.domain.base_entity import BaseDTO
 
 class PermissionName(Enum):
     READ = "read"
@@ -11,6 +10,6 @@ class PermissionName(Enum):
 
 
 @dataclass
-class Permission(BaseMixin):
+class Permission(BaseDTO):
     name: PermissionName
     description: str
