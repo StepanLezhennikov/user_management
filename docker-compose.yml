@@ -3,10 +3,7 @@ services:
     image: postgres:15
     volumes:
       - db_data:/var/lib/postgresql/data
-    environment:
-      POSTGRES_DB: user_management
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+    env_file: .env.example
     healthcheck:
       test: [ "CMD", "pg_isready", "-U", "postgres", "-d", "user_management" ]
       interval: 10s
