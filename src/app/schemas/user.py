@@ -1,15 +1,19 @@
 from pydantic import BaseModel, ConfigDict
 
 
-class User(BaseModel):
+class UserBase(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id: int
     username: str
     email: str
     first_name: str
     last_name: str
-    is_superuser: bool = False
+    is_blocked: bool = False
 
-class UserPrivate(User):
+
+class UserCreate(UserBase):
     hashed_password: str
+
+
+class User(UserBase):
+    id: int
