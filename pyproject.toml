@@ -19,6 +19,7 @@ alembic = "^1.14.1"
 psycopg2-binary = "^2.9.10"
 python-dotenv = "^1.0.1"
 pydantic-settings = "^2.7.1"
+awscli = "^1.37.6"
 
 
 [build-system]
