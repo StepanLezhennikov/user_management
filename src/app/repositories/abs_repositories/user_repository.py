@@ -1,15 +1,14 @@
 from abc import ABC, abstractmethod
-
-from sqlalchemy.ext.asyncio import AsyncSession
+from typing import Any
 
 from app.schemas.user import User
 
 
 class AUserRepository(ABC):
     @abstractmethod
-    async def create(self, user: User, session: AsyncSession) -> bool:
+    async def create(self, user: User, session: Any) -> bool:
         pass
 
     @abstractmethod
-    async def get(self, session: AsyncSession, **filters: int) -> User:
+    async def get(self, session: Any, **filters: int) -> User:
         pass
