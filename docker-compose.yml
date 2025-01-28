@@ -29,8 +29,24 @@ services:
     env_file: .env.example
     entrypoint: "/entrypoint.sh"
 
+  localstack:
+    container_name: "localstack"
+    image: localstack/localstack:4.0.3
+    environment:
+      - SERVICES=ses
+    ports:
+      - "4566:4566"
+    env_file:
+      - .env.example
+    networks:
+      - app-network
+    volumes:
+      - localstack_data:/var/lib/localstack
+      - /var/run/docker.sock:/var/run/docker.sock
+
 volumes:
   db_data:
+  localstack_data:
 
 networks:
   app-network:

@@ -115,6 +115,25 @@ gssauth = ["gssapi", "sspilib"]
 test = ["distro (>=1.9.0,<1.10.0)", "flake8 (>=6.1,<7.0)", "flake8-pyi (>=24.1.0,<24.2.0)", "gssapi", "k5test", "mypy (>=1.8.0,<1.9.0)", "sspilib", "uvloop (>=0.15.3)"]
 
 [[package]]
+name = "awscli"
+version = "1.37.6"
+description = "Universal Command Line Environment for AWS."
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "awscli-1.37.6-py3-none-any.whl", hash = "sha256:e5f9d19718d43f9b03e3258fcc97e61cef21187f7956615f2100cc9d810993e8"},
+    {file = "awscli-1.37.6.tar.gz", hash = "sha256:035cc2a291c496a2e50e5459c343e5333dfa97a7506ca4ce08707408b1d7d989"},
+]
+
+[package.dependencies]
+botocore = "1.36.6"
+colorama = ">=0.2.5,<0.4.7"
+docutils = ">=0.10,<0.17"
+PyYAML = ">=3.10,<6.1"
+rsa = ">=3.1.2,<4.8"
+s3transfer = ">=0.11.0,<0.12.0"
+
+[[package]]
 name = "black"
 version = "24.10.0"
 description = "The uncompromising code formatter."
@@ -157,6 +176,25 @@ colorama = ["colorama (>=0.4.3)"]
 d = ["aiohttp (>=3.10)"]
 jupyter = ["ipython (>=7.8.0)", "tokenize-rt (>=3.2.0)"]
 uvloop = ["uvloop (>=0.15.2)"]
+
+[[package]]
+name = "botocore"
+version = "1.36.6"
+description = "Low-level, data-driven core of boto 3."
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "botocore-1.36.6-py3-none-any.whl", hash = "sha256:f77bbbb03fb420e260174650fb5c0cc142ec20a96967734eed2b0ef24334ef34"},
+    {file = "botocore-1.36.6.tar.gz", hash = "sha256:4864c53d638da191a34daf3ede3ff1371a3719d952cc0c6bd24ce2836a38dd77"},
+]
+
+[package.dependencies]
+jmespath = ">=0.7.1,<2.0.0"
+python-dateutil = ">=2.1,<3.0.0"
+urllib3 = {version = ">=1.25.4,<2.2.0 || >2.2.0,<3", markers = "python_version >= \"3.10\""}
+
+[package.extras]
+crt = ["awscrt (==0.23.4)"]
 
 [[package]]
 name = "cfgv"
@@ -203,6 +241,17 @@ python-versions = "*"
 files = [
     {file = "distlib-0.3.9-py2.py3-none-any.whl", hash = "sha256:47f8c22fd27c27e25a65601af709b38e4f0a45ea4fc2e710f65755fa8caaaf87"},
     {file = "distlib-0.3.9.tar.gz", hash = "sha256:a60f20dea646b8a33f3e7772f74dc0b2d0772d2837ee1342a00645c81edf9403"},
+]
+
+[[package]]
+name = "docutils"
+version = "0.16"
+description = "Docutils -- Python Documentation Utilities"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+files = [
+    {file = "docutils-0.16-py2.py3-none-any.whl", hash = "sha256:0c5b78adfbf7762415433f5515cd5c9e762339e23369dbe8000d84a4bf4ab3af"},
+    {file = "docutils-0.16.tar.gz", hash = "sha256:c2de3a60e9e7d07be26b7f2b00ca0309c207e06c100f9cc2a94931fc75a478fc"},
 ]
 
 [[package]]
@@ -379,6 +428,17 @@ files = [
 
 [package.extras]
 colors = ["colorama (>=0.4.6)"]
+
+[[package]]
+name = "jmespath"
+version = "1.0.1"
+description = "JSON Matching Expressions"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "jmespath-1.0.1-py3-none-any.whl", hash = "sha256:02e2e4cc71b5bcab88332eebf907519190dd9e6e82107fa7f83b1003a6252980"},
+    {file = "jmespath-1.0.1.tar.gz", hash = "sha256:90261b206d6defd58fdd5e85f478bf633a2901798906be2ad389150c5c60edbe"},
+]
 
 [[package]]
 name = "mako"
@@ -625,6 +685,17 @@ files = [
 ]
 
 [[package]]
+name = "pyasn1"
+version = "0.6.1"
+description = "Pure-Python implementation of ASN.1 types and DER/BER/CER codecs (X.208)"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "pyasn1-0.6.1-py3-none-any.whl", hash = "sha256:0d632f46f2ba09143da3a8afe9e33fb6f92fa2320ab7e886e2d0f7672af84629"},
+    {file = "pyasn1-0.6.1.tar.gz", hash = "sha256:6f580d2bdd84365380830acf45550f2511469f673cb4a5ae3857a3170128b034"},
+]
+
+[[package]]
 name = "pydantic"
 version = "2.10.6"
 description = "Data validation using Python type hints"
@@ -777,6 +848,20 @@ toml = ["tomli (>=2.0.1)"]
 yaml = ["pyyaml (>=6.0.1)"]
 
 [[package]]
+name = "python-dateutil"
+version = "2.9.0.post0"
+description = "Extensions to the standard Python datetime module"
+optional = false
+python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
+files = [
+    {file = "python-dateutil-2.9.0.post0.tar.gz", hash = "sha256:37dd54208da7e1cd875388217d5e00ebd4179249f90fb72437e91a35459a0ad3"},
+    {file = "python_dateutil-2.9.0.post0-py2.py3-none-any.whl", hash = "sha256:a8b2bc7bffae282281c8140a97d3aa9c14da0b136dfe83f850eea9a5f7470427"},
+]
+
+[package.dependencies]
+six = ">=1.5"
+
+[[package]]
 name = "python-dotenv"
 version = "1.0.1"
 description = "Read key-value pairs from a .env file and set them as environment variables"
@@ -853,6 +938,20 @@ files = [
 ]
 
 [[package]]
+name = "rsa"
+version = "4.7.2"
+description = "Pure-Python RSA implementation"
+optional = false
+python-versions = ">=3.5, <4"
+files = [
+    {file = "rsa-4.7.2-py3-none-any.whl", hash = "sha256:78f9a9bf4e7be0c5ded4583326e7461e3a3c5aae24073648b4bdfa797d78c9d2"},
+    {file = "rsa-4.7.2.tar.gz", hash = "sha256:9d689e6ca1b3038bc82bf8d23e944b6b6037bc02301a574935b2dd946e0353b9"},
+]
+
+[package.dependencies]
+pyasn1 = ">=0.1.3"
+
+[[package]]
 name = "ruff"
 version = "0.9.3"
 description = "An extremely fast Python linter and code formatter, written in Rust."
@@ -877,6 +976,34 @@ files = [
     {file = "ruff-0.9.3-py3-none-win_amd64.whl", hash = "sha256:040ceb7f20791dfa0e78b4230ee9dce23da3b64dd5848e40e3bf3ab76468dcf4"},
     {file = "ruff-0.9.3-py3-none-win_arm64.whl", hash = "sha256:800d773f6d4d33b0a3c60e2c6ae8f4c202ea2de056365acfa519aa48acf28e0b"},
     {file = "ruff-0.9.3.tar.gz", hash = "sha256:8293f89985a090ebc3ed1064df31f3b4b56320cdfcec8b60d3295bddb955c22a"},
+]
+
+[[package]]
+name = "s3transfer"
+version = "0.11.2"
+description = "An Amazon S3 Transfer Manager"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "s3transfer-0.11.2-py3-none-any.whl", hash = "sha256:be6ecb39fadd986ef1701097771f87e4d2f821f27f6071c872143884d2950fbc"},
+    {file = "s3transfer-0.11.2.tar.gz", hash = "sha256:3b39185cb72f5acc77db1a58b6e25b977f28d20496b6e58d6813d75f464d632f"},
+]
+
+[package.dependencies]
+botocore = ">=1.36.0,<2.0a.0"
+
+[package.extras]
+crt = ["botocore[crt] (>=1.36.0,<2.0a.0)"]
+
+[[package]]
+name = "six"
+version = "1.17.0"
+description = "Python 2 and 3 compatibility utilities"
+optional = false
+python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
+files = [
+    {file = "six-1.17.0-py2.py3-none-any.whl", hash = "sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274"},
+    {file = "six-1.17.0.tar.gz", hash = "sha256:ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81"},
 ]
 
 [[package]]
@@ -1014,6 +1141,23 @@ files = [
 ]
 
 [[package]]
+name = "urllib3"
+version = "2.3.0"
+description = "HTTP library with thread-safe connection pooling, file post, and more."
+optional = false
+python-versions = ">=3.9"
+files = [
+    {file = "urllib3-2.3.0-py3-none-any.whl", hash = "sha256:1cee9ad369867bfdbbb48b7dd50374c0967a0bb7710050facf0dd6911440e3df"},
+    {file = "urllib3-2.3.0.tar.gz", hash = "sha256:f8c5449b3cf0861679ce7e0503c7b44b5ec981bec0d1d3795a07f1ba96f0204d"},
+]
+
+[package.extras]
+brotli = ["brotli (>=1.0.9)", "brotlicffi (>=0.8.0)"]
+h2 = ["h2 (>=4,<5)"]
+socks = ["pysocks (>=1.5.6,!=1.5.7,<2.0)"]
+zstd = ["zstandard (>=0.18.0)"]
+
+[[package]]
 name = "uvicorn"
 version = "0.34.0"
 description = "The lightning-fast ASGI server."
@@ -1054,4 +1198,4 @@ test = ["covdefaults (>=2.3)", "coverage (>=7.2.7)", "coverage-enable-subprocess
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "1484bc1cbec59ba245d0d0168fe08fce34035587c8beddbd7ce79f6bc6cef464"
+content-hash = "18e529ca74c043fa41d155e5630f21effdd3d1fe641dc2f7ac95dd0ba008d116"

@@ -14,8 +14,14 @@ class Settings(BaseSettings):
     POSTGRES_USER: str = os.getenv("POSTGRES_USER")
     POSTGRES_PASSWORD: str = os.getenv("POSTGRES_PASSWORD")
 
+    AWS__REGION_NAME: str = os.getenv("AWS__REGION_NAME")
+    AWS__ACCESS_KEY_ID: str = os.getenv("AWS__ACCESS_KEY_ID")
+    AWS__SECRET_ACCESS_KEY: str = os.getenv("AWS__SECRET_ACCESS_KEY")
+    AWS__ENDPOINT_URL: str = os.getenv("AWS__ENDPOINT_URL")
+    AWS__EMAIL_SOURCE: str = os.getenv("AWS__EMAIL_SOURCE")
+
     class Config:
-        env_file = ".env.example"
+        extra = "allow"
 
 
 settings = Settings()
