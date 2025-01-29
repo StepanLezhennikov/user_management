@@ -8,11 +8,10 @@ from src.app.repositories.abs_repositories.user_repository import AUserRepositor
 
 
 class UserRepository(AUserRepository):
-
     def __init__(self, session: AsyncSession):
         self._session = session
 
-    async def create(self, user: UserCreate) -> User:
+    async def create(self, user: UserCreate) -> UserCreate:
         added_user = SQLAlchemyUser(
             username=user.username,
             email=user.email,
@@ -22,15 +21,12 @@ class UserRepository(AUserRepository):
             is_blocked=user.is_blocked,
         )
         self._session.add(added_user)
-        await self._session.commit()
-        await self._session.refresh(added_user)
-        return added_user
+        return UserCreate.model_validate(added_user)
 
-    async def get(self, session: AsyncSession, **filters: int) -> User | None:
-        query = select(User).filter_by(**filters)
-        result = await session.execute(query)
+    async def get(self, **filters: int) -> User | None:
+        query = select(SQLAlchemyUser).filter_by(**filters)
+        result = await self._session.execute(query)
         try:
-            user = result.scalar_one()
-            return user
+            return result.scalar_one()
         except UserNotFound:
             return None

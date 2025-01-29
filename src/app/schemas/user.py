@@ -1,14 +1,13 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import EmailStr, BaseModel, ConfigDict
 
 
 class UserBase(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     username: str
-    email: str
+    email: EmailStr
     first_name: str
     last_name: str
-    is_blocked: bool = False
 
 
 class UserCreate(UserBase):
@@ -17,3 +16,4 @@ class UserCreate(UserBase):
 
 class User(UserBase):
     id: int
+    is_blocked: bool = False
