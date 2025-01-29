@@ -1,14 +1,13 @@
 from abc import ABC, abstractmethod
-from typing import Any
 
-from app.schemas.user import User
+from app.schemas.user import User, UserCreate
 
 
 class AUserRepository(ABC):
     @abstractmethod
-    async def create(self, user: User, session: Any) -> bool:
+    async def create(self, user: UserCreate) -> User:
         pass
 
     @abstractmethod
-    async def get(self, session: Any, **filters: int) -> User:
+    async def get(self, **filters: int) -> User:
         pass

@@ -20,6 +20,7 @@ psycopg2-binary = "^2.9.10"
 python-dotenv = "^1.0.1"
 pydantic-settings = "^2.7.1"
 awscli = "^1.37.6"
+dependency-injector = "^4.45.0"
 
 
 [build-system]

@@ -1,12 +1,11 @@
 from contextlib import asynccontextmanager
 
-from fastapi import Depends, FastAPI
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import FastAPI
 
 from src.app.db.base import Base
-from src.app.db.session import engine, get_db
-from src.app.schemas.user import UserCreate
-from src.app.repositories.impl_repositories.user_repository import UserRepository
+from src.app.containers import Container
+from src.app.db.session import engine
+from src.app.api.rest.controllers import api
 
 
 @asynccontextmanager
@@ -16,22 +15,16 @@ async def lifespan(app: FastAPI):
     yield
 
 
+container = Container()
+container.wire(modules=[__name__, "src.app.api.rest.v1.user.controllers"])
+
 app = FastAPI(lifespan=lifespan)
+
+app.container = container
+
+app.include_router(api)
 
 
 @app.get("/")
-async def read_root(session: AsyncSession = Depends(get_db)):
-    new_user = UserCreate(
-        username="johndoe 63",
-        email="johndoe63@example.com",
-        first_name="John",
-        last_name="Doe",
-        hashed_password="hashed_password",
-        is_blocked=False,
-    )
-
-    user_rep = UserRepository()
-    user = await user_rep.create(new_user, session)
-    if user is None:
-        return {"message": "User not added"}
-    return {"message": f"User added : {new_user.username}"}
+async def read_root():
+    return {"message": "Hello World"}

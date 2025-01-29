@@ -9,7 +9,10 @@ from src.app.repositories.abs_repositories.user_repository import AUserRepositor
 
 class UserRepository(AUserRepository):
 
-    async def create(self, user: UserCreate, session: AsyncSession) -> bool:
+    def __init__(self, session: AsyncSession):
+        self._session = session
+
+    async def create(self, user: UserCreate) -> User:
         added_user = SQLAlchemyUser(
             username=user.username,
             email=user.email,
@@ -18,9 +21,10 @@ class UserRepository(AUserRepository):
             hashed_password=user.hashed_password,
             is_blocked=user.is_blocked,
         )
-        session.add(added_user)
-        await session.commit()
-        return True
+        self._session.add(added_user)
+        await self._session.commit()
+        await self._session.refresh(added_user)
+        return added_user
 
     async def get(self, session: AsyncSession, **filters: int) -> User | None:
         query = select(User).filter_by(**filters)
