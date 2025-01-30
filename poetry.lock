@@ -116,17 +116,17 @@ test = ["distro (>=1.9.0,<1.10.0)", "flake8 (>=6.1,<7.0)", "flake8-pyi (>=24.1.0
 
 [[package]]
 name = "awscli"
-version = "1.37.8"
+version = "1.37.9"
 description = "Universal Command Line Environment for AWS."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "awscli-1.37.8-py3-none-any.whl", hash = "sha256:5d162e6875a5b6fe5771741abb23b551adccfe3136abe804de9dd106c433cf62"},
-    {file = "awscli-1.37.8.tar.gz", hash = "sha256:419ec45403937afc08e11a91d8fb80d14c32f3ebd735c2665b49256e9da65af1"},
+    {file = "awscli-1.37.9-py3-none-any.whl", hash = "sha256:cd3b093bca1401e6d51f7e64bc71312685f104fe2837f8124d61f77000218b09"},
+    {file = "awscli-1.37.9.tar.gz", hash = "sha256:49b53ab2c7f9418790172f02e95bbacf6e4ab5f5f556a0244b6d8061e40fef39"},
 ]
 
 [package.dependencies]
-botocore = "1.36.8"
+botocore = "1.36.9"
 colorama = ">=0.2.5,<0.4.7"
 docutils = ">=0.10,<0.17"
 PyYAML = ">=3.10,<6.1"
@@ -179,13 +179,13 @@ uvloop = ["uvloop (>=0.15.2)"]
 
 [[package]]
 name = "botocore"
-version = "1.36.8"
+version = "1.36.9"
 description = "Low-level, data-driven core of boto 3."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "botocore-1.36.8-py3-none-any.whl", hash = "sha256:59d3fdfbae6d916b046e973bebcbeb70a102f9e570ca86d5ba512f1854b78fc2"},
-    {file = "botocore-1.36.8.tar.gz", hash = "sha256:81c88e5566cf018e1411a68304dc1fb9e4156ca2b50a3a0f0befc274299e67fa"},
+    {file = "botocore-1.36.9-py3-none-any.whl", hash = "sha256:e31d206c7708300c541d0799df73b576bbe7d8bed011687d96323ed48763ffd2"},
+    {file = "botocore-1.36.9.tar.gz", hash = "sha256:cb3baefdb8326fdfae0750015e5868330e18d3a088a31da658df2cc8cba7ac73"},
 ]
 
 [package.dependencies]
@@ -342,6 +342,26 @@ files = [
 ]
 
 [[package]]
+name = "dnspython"
+version = "2.7.0"
+description = "DNS toolkit"
+optional = false
+python-versions = ">=3.9"
+files = [
+    {file = "dnspython-2.7.0-py3-none-any.whl", hash = "sha256:b4c34b7d10b51bcc3a5071e7b8dee77939f1e878477eeecc965e9835f63c6c86"},
+    {file = "dnspython-2.7.0.tar.gz", hash = "sha256:ce9c432eda0dc91cf618a5cedf1a4e142651196bbcd2c80e89ed5a907e5cfaf1"},
+]
+
+[package.extras]
+dev = ["black (>=23.1.0)", "coverage (>=7.0)", "flake8 (>=7)", "hypercorn (>=0.16.0)", "mypy (>=1.8)", "pylint (>=3)", "pytest (>=7.4)", "pytest-cov (>=4.1.0)", "quart-trio (>=0.11.0)", "sphinx (>=7.2.0)", "sphinx-rtd-theme (>=2.0.0)", "twine (>=4.0.0)", "wheel (>=0.42.0)"]
+dnssec = ["cryptography (>=43)"]
+doh = ["h2 (>=4.1.0)", "httpcore (>=1.0.0)", "httpx (>=0.26.0)"]
+doq = ["aioquic (>=1.0.0)"]
+idna = ["idna (>=3.7)"]
+trio = ["trio (>=0.23)"]
+wmi = ["wmi (>=1.5.1)"]
+
+[[package]]
 name = "docutils"
 version = "0.16"
 description = "Docutils -- Python Documentation Utilities"
@@ -351,6 +371,21 @@ files = [
     {file = "docutils-0.16-py2.py3-none-any.whl", hash = "sha256:0c5b78adfbf7762415433f5515cd5c9e762339e23369dbe8000d84a4bf4ab3af"},
     {file = "docutils-0.16.tar.gz", hash = "sha256:c2de3a60e9e7d07be26b7f2b00ca0309c207e06c100f9cc2a94931fc75a478fc"},
 ]
+
+[[package]]
+name = "email-validator"
+version = "2.2.0"
+description = "A robust email address syntax and deliverability validation library."
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "email_validator-2.2.0-py3-none-any.whl", hash = "sha256:561977c2d73ce3611850a06fa56b414621e0c8faa9d66f2611407d87465da631"},
+    {file = "email_validator-2.2.0.tar.gz", hash = "sha256:cb690f344c617a714f22e66ae771445a1ceb46821152df8e165c5f9a364582b7"},
+]
+
+[package.dependencies]
+dnspython = ">=2.0.0"
+idna = ">=2.0.0"
 
 [[package]]
 name = "fastapi"
@@ -806,6 +841,7 @@ files = [
 
 [package.dependencies]
 annotated-types = ">=0.6.0"
+email-validator = {version = ">=2.0.0", optional = true, markers = "extra == \"email\""}
 pydantic-core = "2.27.2"
 typing-extensions = ">=4.12.2"
 
@@ -1296,4 +1332,4 @@ test = ["covdefaults (>=2.3)", "coverage (>=7.2.7)", "coverage-enable-subprocess
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "e00ae0b885ed3b1516e443940b3154dc8e4e164048783d8461f764008ded9e29"
+content-hash = "cc03d68d8e6ef36882a1fecfb53f20548c06c907b1204b89da74cae1a3f30a70"

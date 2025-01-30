@@ -2,8 +2,8 @@ import logging
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from app.repositories.uow.abstract_uow import AUnitOfWork
-from app.repositories.impl_repositories.user_repository import UserRepository
+from app.services.interfaces.uow.uow import AUnitOfWork
+from app.repositories.repositories.user_repository import UserRepository
 
 logger = logging.getLogger(__name__)
 

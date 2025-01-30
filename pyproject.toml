@@ -21,6 +21,7 @@ python-dotenv = "^1.0.1"
 pydantic-settings = "^2.7.1"
 awscli = "^1.37.6"
 dependency-injector = "^4.45.0"
+pydantic = {extras = ["email"], version = "^2.10.6"}
 
 
 [build-system]
