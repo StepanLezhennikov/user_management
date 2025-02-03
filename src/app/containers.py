@@ -3,7 +3,8 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from app.core.config import settings
 from app.infra.uow.uow import Uow
-from app.services.services.auth import AuthService
+from app.services.services.auth_service import AuthService
+from app.services.services.email_service import EmailService
 
 
 class Container(containers.DeclarativeContainer):
@@ -17,3 +18,4 @@ class Container(containers.DeclarativeContainer):
     uow = providers.Factory(Uow, session_factory=session_factory)
 
     auth_service = providers.Factory(AuthService, uow=uow)
+    email_service = providers.Factory(EmailService)

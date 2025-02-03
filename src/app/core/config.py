@@ -20,6 +20,10 @@ class Settings(BaseSettings):
     AWS__ENDPOINT_URL: str = os.getenv("AWS__ENDPOINT_URL")
     AWS__EMAIL_SOURCE: str = os.getenv("AWS__EMAIL_SOURCE")
 
+    SECRET_KEY: str = os.getenv("SECRET_KEY")
+    ALGORITHM: str = os.getenv("ALGORITHM")
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
+
     class Config:
         extra = "allow"
 

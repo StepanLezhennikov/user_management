@@ -19,10 +19,11 @@ alembic = "^1.14.1"
 psycopg2-binary = "^2.9.10"
 python-dotenv = "^1.0.1"
 pydantic-settings = "^2.7.1"
-awscli = "^1.37.6"
 dependency-injector = "^4.45.0"
 pydantic = {extras = ["email"], version = "^2.10.6"}
-debugpy = "^1.8.12"
+aioboto3 = "^13.4.0"
+awscli-local = "^0.22.0"
+
 
 
 [build-system]
