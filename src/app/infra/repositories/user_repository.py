@@ -1,9 +1,9 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.app.models.user import User as SQLAlchemyUser
 from src.app.schemas.user import User, UserCreate
-from app.repositories.exceptions.user_repository import UserNotFound
+from app.infra.repositories.models.user_model import User as SQLAlchemyUser
+from app.services.interfaces.exceptions.user_repository import UserNotFound
 from app.services.interfaces.repositories.user_repository import AUserRepository
 
 
