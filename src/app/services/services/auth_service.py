@@ -12,10 +12,9 @@ class AuthService(AAuthService):
         logger.info("Вызов AuthService __init__")
         self._uow = uow
 
-    async def register(self, user_data: UserCreate) -> UserCreate:
+    async def create(self, user_data: UserCreate) -> UserCreate:
         logger.info("Вызов AuthService register")
         async with self._uow as uow:
-            # Добавить сюда логику проверки
             new_user = await uow.users.create(user_data)
             await uow.commit()
             return new_user

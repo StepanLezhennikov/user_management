@@ -5,5 +5,4 @@ from pydantic import EmailStr
 
 class AEmailService(ABC):
     @abstractmethod
-    async def send_message(self, email: EmailStr, subject: str, message: str) -> bool:
-        raise NotImplementedError()
+    async def send_code(self, email: EmailStr, subject: str, code: int) -> bool: ...

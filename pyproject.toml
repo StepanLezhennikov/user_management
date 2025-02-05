@@ -22,7 +22,7 @@ pydantic-settings = "^2.7.1"
 dependency-injector = "^4.45.0"
 pydantic = {extras = ["email"], version = "^2.10.6"}
 aioboto3 = "^13.4.0"
-awscli-local = "^0.22.0"
+redis = "^5.2.1"
 
 
 

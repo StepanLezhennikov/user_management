@@ -14,11 +14,11 @@ class Settings(BaseSettings):
     POSTGRES_USER: str = os.getenv("POSTGRES_USER")
     POSTGRES_PASSWORD: str = os.getenv("POSTGRES_PASSWORD")
 
-    AWS__REGION_NAME: str = os.getenv("AWS__REGION_NAME")
-    AWS__ACCESS_KEY_ID: str = os.getenv("AWS__ACCESS_KEY_ID")
-    AWS__SECRET_ACCESS_KEY: str = os.getenv("AWS__SECRET_ACCESS_KEY")
-    AWS__ENDPOINT_URL: str = os.getenv("AWS__ENDPOINT_URL")
-    AWS__EMAIL_SOURCE: str = os.getenv("AWS__EMAIL_SOURCE")
+    AWS_REGION_NAME: str = os.getenv("AWS_REGION_NAME")
+    AWS_ACCESS_KEY_ID: str = os.getenv("AWS_ACCESS_KEY_ID")
+    AWS_SECRET_ACCESS_KEY: str = os.getenv("AWS_SECRET_ACCESS_KEY")
+    AWS_ENDPOINT_URL: str = os.getenv("AWS_ENDPOINT_URL")
+    AWS_EMAIL_SOURCE: str = os.getenv("AWS_EMAIL_SOURCE")
 
     SECRET_KEY: str = os.getenv("SECRET_KEY")
     ALGORITHM: str = os.getenv("ALGORITHM")

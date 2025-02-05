@@ -1,35 +1,29 @@
+from logging import getLogger
+
 import aioboto3
-from botocore.exceptions import BotoCoreError, ClientError
+from pydantic import EmailStr
 
-from app.api.interfaces.services.email_service import AEmailService
 from app.core.config import settings
+from app.api.interfaces.services.email_service import AEmailService
 
-
-class SesClient:
-    def __init__(self):
-        self.session = aioboto3.Session(
-            aws_access_key_id=settings.AWS__ACCESS_KEY_ID,
-            aws_secret_access_key=settings.AWS__SECRET_ACCESS_KEY,
-            region_name=settings.AWS__REGION_NAME,
-        )
-
-
-ses_client = SesClient()
+logger = getLogger(__name__)
 
 
 class EmailService(AEmailService):
-    async def send_message(self, email: str, subject: str, message: str) -> bool:
-        async with ses_client.session.client(
-            "ses",
-            endpoint_url=settings.AWS__ENDPOINT_URL,
+
+    def __init__(self, aioboto3_session: aioboto3.Session):
+        self._session = aioboto3_session
+
+    async def send_code(self, email: EmailStr, subject: str, code: int) -> None:
+        async with self._session.client(
+            "ses", endpoint_url=settings.AWS_ENDPOINT_URL
         ) as ses:
-            try:
-                ses.send_email(
-                    Source=settings.AWS__EMAIL_SOURCE,
-                    Destination={"ToAddresses": [email]},
-                    Message={"Subject": subject, "Body": message},
-                )
-            except (BotoCoreError, ClientError) as e:
-                print(e)
-                return False
-        return True
+            await ses.send_email(
+                Source=settings.AWS_EMAIL_SOURCE,
+                Destination={"ToAddresses": [email]},
+                Message={
+                    "Subject": {"Data": subject},
+                    "Body": {"Text": {"Data": f"Код подтверждения: {code}"}},
+                },
+            )
+            logger.debug("Email sent! Code:", code)
