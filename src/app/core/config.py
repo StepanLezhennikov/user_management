@@ -1,9 +1,17 @@
 import os
+from dataclasses import dataclass
 
 from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
 
 load_dotenv()
+
+
+@dataclass
+class Constants:
+    subject_for_email: str = "Подтверждение почты"
+    message_for_email: str = "Код подтверждения: "
+    expiration_time_for_code: int = 300
 
 
 class Settings(BaseSettings):

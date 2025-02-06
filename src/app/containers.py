@@ -4,12 +4,12 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from app.core.config import settings
 from app.infra.uow.uow import Uow
-from app.services.services.auth_service import AuthService
-from app.services.services.email_service import EmailService
-from app.services.services.code_verification_service import CodeVerificationService
-from app.infra.repositories.code_verification_repository import (
-    CodeVerificationRepository,
-)
+from app.use_cases.send_code import SendCodeUseCase
+from app.services.services.auth import AuthService
+from app.infra.clients.aws.email import EmailClient
+from app.services.services.email import EmailService
+from app.services.services.code_verification import CodeVerificationService
+from app.infra.repositories.code_verification import CodeVerificationRepository
 
 
 class Container(containers.DeclarativeContainer):
@@ -26,11 +26,19 @@ class Container(containers.DeclarativeContainer):
         region_name=settings.AWS_REGION_NAME,
     )
 
+    email_client = providers.Factory(EmailClient, aioboto3_session=aioboto3_session)
+
     code_verification_repository = providers.Factory(CodeVerificationRepository)
     uow = providers.Factory(Uow, session_factory=session_factory)
 
     auth_service = providers.Factory(AuthService, uow=uow)
-    email_service = providers.Factory(EmailService, aioboto3_session=aioboto3_session)
+    email_service = providers.Factory(EmailService, email_client=email_client)
     code_verification_service = providers.Factory(
         CodeVerificationService, code_ver_repo=code_verification_repository
+    )
+
+    send_code_use_case = providers.Factory(
+        SendCodeUseCase,
+        email_service=email_service,
+        code_verification_service=code_verification_service,
     )
