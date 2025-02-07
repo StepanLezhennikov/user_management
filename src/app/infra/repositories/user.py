@@ -3,7 +3,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.app.schemas.user import User, UserCreate
 from app.infra.repositories.models.user_model import User as SQLAlchemyUser
-from app.services.interfaces.exceptions.user_repository import UserNotFound
 from app.services.interfaces.repositories.user_repository import AUserRepository
 
 
@@ -22,10 +21,7 @@ class UserRepository(AUserRepository):
         self._session.add(added_user)
         return user
 
-    async def get(self, **filters: dict) -> User | None:
+    async def get(self, **filters) -> User | None:
         query = select(SQLAlchemyUser).filter_by(**filters)
         result = await self._session.execute(query)
-        try:
-            return result.scalar_one()
-        except UserNotFound:
-            return None
+        return result.scalar_one_or_none()

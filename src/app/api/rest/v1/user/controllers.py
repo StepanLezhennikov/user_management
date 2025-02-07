@@ -4,8 +4,10 @@ from fastapi import Depends, APIRouter
 from pydantic import EmailStr
 from dependency_injector.wiring import Provide, inject
 
+from app.core.config import Constants
 from app.schemas.code_verification import Code, CodeVerification
-from app.api.interfaces.use_cases.send_code import ASendCodeUseCase
+from app.api.interfaces.services.auth import AAuthService
+from app.api.interfaces.services.email import AEmailService
 from app.api.interfaces.services.code_verification import ACodeVerificationService
 
 logger = getLogger(__name__)
@@ -17,19 +19,17 @@ router = APIRouter()
 @inject
 async def send_code(
     user_email: EmailStr,
-    send_code_use_case: ASendCodeUseCase = Depends(Provide["send_code_use_case"]),
+    email_service: AEmailService = Depends(Provide["email_service"]),
+    code_verification_service: ACodeVerificationService = Depends(
+        Provide["code_verification_service"]
+    ),
+    auth_service: AAuthService = Depends(Provide["auth_service"]),
 ) -> Code:
-    return await send_code_use_case.send_code(user_email)
-
-    # # TODO: проверка что пользователь не зарегистрирован
-    # code = code_verification_service.generate_code()
-    # await email_service.send_code(
-    #     email=user_email,
-    #     subject=Constants.subject_for_email,
-    #     code=code,
-    # )
-    # code_verification_service.create(user_email, code)
-    # return Code(code=code)
+    await auth_service.check_user_exists(user_email)
+    code = code_verification_service.generate_code()
+    await email_service.send_code(user_email, Constants.subject_for_email, code)
+    code_verification_service.create(user_email, code)
+    return Code(code=code)
 
 
 @router.post("/code_verification")

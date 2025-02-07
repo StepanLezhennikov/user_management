@@ -1,5 +1,8 @@
 from logging import getLogger
 
+from fastapi import HTTPException
+from pydantic import EmailStr
+
 from app.schemas.user import UserCreate
 from app.services.interfaces.uow.uow import AUnitOfWork
 from app.api.interfaces.services.auth import AAuthService
@@ -18,3 +21,12 @@ class AuthService(AAuthService):
             new_user = await uow.users.create(user_data)
             await uow.commit()
             return new_user
+
+    async def check_user_exists(self, email: EmailStr) -> bool:
+        async with self._uow as uow:
+            user = await uow.users.get(email=email)
+            if user:
+                raise HTTPException(
+                    status_code=409, detail="User is already registered"
+                )
+            return False

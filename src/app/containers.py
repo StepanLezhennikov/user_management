@@ -4,7 +4,6 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from app.core.config import settings
 from app.infra.uow.uow import Uow
-from app.use_cases.send_code import SendCodeUseCase
 from app.services.services.auth import AuthService
 from app.infra.clients.aws.email import EmailClient
 from app.services.services.email import EmailService
@@ -35,10 +34,4 @@ class Container(containers.DeclarativeContainer):
     email_service = providers.Factory(EmailService, email_client=email_client)
     code_verification_service = providers.Factory(
         CodeVerificationService, code_ver_repo=code_verification_repository
-    )
-
-    send_code_use_case = providers.Factory(
-        SendCodeUseCase,
-        email_service=email_service,
-        code_verification_service=code_verification_service,
     )

@@ -9,5 +9,5 @@ class AUserRepository(ABC):
         pass
 
     @abstractmethod
-    async def get(self, **filters: int) -> User:
+    async def get(self, **filters) -> User:
         pass

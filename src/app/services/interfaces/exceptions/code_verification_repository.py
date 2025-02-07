@@ -1,2 +1,0 @@
-class ExpiryError(TypeError):
-    pass
