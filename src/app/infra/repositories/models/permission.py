@@ -1,19 +1,20 @@
 from datetime import datetime
 
-from sqlalchemy import ForeignKey
+from sqlalchemy import Table, Column, ForeignKey, ForeignKeyConstraint
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 
 from app.db.base import Base
 
-
-class RolePermission(Base):
-    __tablename__ = "role_permission"
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True, index=True)
-    role_id: Mapped[int] = mapped_column(ForeignKey("roles.id"))
-    permission_id: Mapped[int] = mapped_column(ForeignKey("permissions.id"))
-
-    role = relationship("Role", back_populates="permissions")
-    permission = relationship("Permission", back_populates="roles")
+role_permission = Table(
+    "role_permission",
+    Base.metadata,
+    Column("role_id", ForeignKey("roles.id"), primary_key=True),
+    Column("permission_id", ForeignKey("permissions.id"), primary_key=True),
+    ForeignKeyConstraint(["role_id"], ["roles.id"], name="role_permission_role_id_fk"),
+    ForeignKeyConstraint(
+        ["permission_id"], ["permissions.id"], name="role_permission_permission_id_fk"
+    ),
+)
 
 
 class Permission(Base):
@@ -26,5 +27,5 @@ class Permission(Base):
     updated_at: Mapped[datetime] = mapped_column(default=datetime.now)
 
     roles = relationship(
-        "RolePermission", back_populates="permission", cascade="all, delete-orphan"
+        "Role", secondary="role_permission", back_populates="permissions"
     )

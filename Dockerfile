@@ -45,4 +45,3 @@ RUN chown -R appuser:appgroup /entrypoint.sh
 
 EXPOSE 8001
 
-USER appuser

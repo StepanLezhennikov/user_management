@@ -4,8 +4,8 @@ from sqlalchemy import pool, engine_from_config
 
 from alembic import context
 from app.db.base import Base
-from app.infra.repositories.models.role import Role, UserRole
-from app.infra.repositories.models.permission import Permission, RolePermission
+from app.infra.repositories.models.role import Role
+from app.infra.repositories.models.permission import Permission
 from app.infra.repositories.models.user_model import User
 
 # this is the Alembic Config object, which provides

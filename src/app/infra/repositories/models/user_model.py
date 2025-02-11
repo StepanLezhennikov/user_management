@@ -1,8 +1,13 @@
+from typing import TYPE_CHECKING
 from datetime import datetime
 
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 
 from app.db.base import Base
+from app.infra.repositories.models.role import user_role
+
+if TYPE_CHECKING:
+    from app.infra.repositories.models.role import Role
 
 
 class User(Base):
@@ -18,4 +23,6 @@ class User(Base):
     created_at: Mapped[datetime] = mapped_column(default=datetime.now)
     updated_at: Mapped[datetime] = mapped_column(default=datetime.now)
 
-    roles = relationship("UserRole", back_populates="users")
+    roles: Mapped[list["Role"]] = relationship(
+        "Role", secondary=user_role, back_populates="users"
+    )
