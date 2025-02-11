@@ -1,8 +1,8 @@
 from datetime import datetime
 
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, relationship, mapped_column
 
-from src.app.db.base import Base
+from app.db.base import Base
 
 
 class User(Base):
@@ -17,3 +17,5 @@ class User(Base):
     is_blocked: Mapped[bool] = mapped_column(default=False)
     created_at: Mapped[datetime] = mapped_column(default=datetime.now)
     updated_at: Mapped[datetime] = mapped_column(default=datetime.now)
+
+    roles = relationship("UserRole", back_populates="users")
