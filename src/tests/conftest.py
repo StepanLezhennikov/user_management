@@ -3,6 +3,8 @@ from typing import Generator, AsyncGenerator
 from asyncio import AbstractEventLoop
 
 import pytest
+import aioboto3
+from pydantic import EmailStr
 from sqlalchemy import NullPool, text
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
@@ -12,9 +14,11 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from app.db.sqla import SqlAlchemyDatabase
+from app.db.redis import redis_db
 from app.core.config import Settings
 from app.schemas.user import User, UserCreate
 from tests.alembic.utils import drop_database, create_database, apply_migrations
+from app.infra.clients.aws.email import EmailClient
 from app.infra.repositories.models.user_model import User as UserModel
 
 
@@ -55,6 +59,7 @@ def test_sqla_db(settings: Settings, setup_sqla_db) -> SqlAlchemyDatabase:
 @pytest.fixture(scope="function", autouse=True)
 async def clean_db(session: AsyncSession) -> None:
     await session.execute(text("TRUNCATE TABLE users RESTART IDENTITY CASCADE"))
+    redis_db.flushall()
     await session.commit()
 
 
@@ -109,3 +114,27 @@ async def created_user(session: AsyncSession, user_create: UserCreate) -> User:
     await session.flush()
     await session.commit()
     return added_user
+
+
+@pytest.fixture
+def email() -> EmailStr:
+    return "test@example.com"
+
+
+@pytest.fixture
+def code() -> int:
+    return 1111
+
+
+@pytest.fixture
+async def aioboto3_session(settings) -> aioboto3.Session:
+    return aioboto3.Session(
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+        region_name=settings.AWS_REGION_NAME,
+    )
+
+
+@pytest.fixture
+async def email_client(aioboto3_session) -> EmailClient:
+    return EmailClient(aioboto3_session=aioboto3_session)
