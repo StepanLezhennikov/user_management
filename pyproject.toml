@@ -19,6 +19,11 @@ alembic = "^1.14.1"
 psycopg2-binary = "^2.9.10"
 python-dotenv = "^1.0.1"
 pydantic-settings = "^2.7.1"
+dependency-injector = "^4.45.0"
+pydantic = {extras = ["email"], version = "^2.10.6"}
+aioboto3 = "^13.4.0"
+redis = "^5.2.1"
+
 
 
 [build-system]

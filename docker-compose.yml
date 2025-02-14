@@ -29,8 +29,40 @@ services:
     env_file: .env.example
     entrypoint: "/entrypoint.sh"
 
+  localstack:
+    container_name: "localstack"
+    image: localstack/localstack:4.0.3
+    environment:
+      - SERVICES=ses
+    env_file:
+      - .env.example
+    ports:
+      - "4566:4566"
+    networks:
+      - app-network
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./init-aws.sh:/init-aws.sh
+    entrypoint: ["/init-aws.sh" ]
+
+  redis:
+    image: redis:7.4-alpine
+    container_name: redis
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    env_file:
+      - .env.example
+    ports:
+      - "6380:6379"
+    networks:
+      - app-network
+
 volumes:
   db_data:
+  localstack_data:
 
 networks:
   app-network:
