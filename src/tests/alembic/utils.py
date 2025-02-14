@@ -1,6 +1,3 @@
-import os
-from pathlib import Path
-
 from sqlalchemy import URL, text
 from sqlalchemy.engine import make_url
 from sqlalchemy.ext.asyncio import AsyncConnection, create_async_engine
@@ -12,9 +9,7 @@ POSTGRES_DEFAULT_DB = "postgres"
 
 
 def apply_migrations(connection: AsyncConnection) -> None:
-    base_dir = Path(__file__).resolve().parent.parent.parent
-    alembic_cfg = Config(os.path.join(base_dir, "alembic.ini"))
-
+    alembic_cfg = Config("/alembic.ini")
     alembic_cfg.attributes["connection"] = connection
     command.upgrade(alembic_cfg, "head")
 

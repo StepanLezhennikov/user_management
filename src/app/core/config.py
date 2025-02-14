@@ -29,6 +29,7 @@ class RDBConfig(BaseModel):
     server_settings: dict[str, Any] = {}
     connect_args: dict[str, Any] = {}
     debug: bool = False
+    app_naorjsonme: str = "app"
 
 
 class Settings(BaseSettings):
