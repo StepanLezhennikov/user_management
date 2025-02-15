@@ -1,4 +1,3 @@
-# import os
 # from datetime import datetime, timedelta
 # from typing import Union
 # from pyjwt import jwt
@@ -16,7 +15,7 @@
 #
 # def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None):
 #     to_encode = data.copy()
-#     expire = datetime.utcnow() + (
+#     expire = datetime.now() + (
 #         expires_delta
 #         if expires_delta
 #         else timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
