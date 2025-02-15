@@ -1,8 +1,8 @@
 import pytest
-from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.schemas.user import User, UserCreate
+from app.api.exceptions.auth_service import UserIsRegistered
 from app.api.interfaces.services.auth import AAuthService
 
 
@@ -17,11 +17,8 @@ async def test_create_user(auth_service: AAuthService, user_create: UserCreate) 
 async def test_check_user_exists(
     auth_service: AAuthService, created_user: User, session: AsyncSession
 ) -> None:
-    with pytest.raises(HTTPException) as exc_info:
+    with pytest.raises(UserIsRegistered):
         await auth_service.check_user_exists(created_user.email)
-
-    assert exc_info.value.status_code == 409
-    assert exc_info.value.detail == "User is already registered"
 
 
 async def test_check_user_not_exists(

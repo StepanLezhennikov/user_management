@@ -1,8 +1,8 @@
+import redis
 import pytest
 from pydantic import EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from app.db.redis import redis_db
 from app.core.config import Constants
 from app.infra.uow.uow import Uow
 from app.services.services.auth import AuthService
@@ -40,10 +40,17 @@ async def code_verification_service(code_verification_repo) -> ACodeVerification
 
 
 @pytest.fixture
-def created_code(email: EmailStr, code) -> int:
+def redis_database(settings) -> redis.Redis:
+    return redis.Redis(host="redis", port=6379, db=0, decode_responses=True)
+
+
+@pytest.fixture
+def created_code(email: EmailStr, redis_database: redis.Redis, code: int) -> int:
     return (
         code
-        if bool(redis_db.set(email, code, ex=Constants.expiration_time_for_code))
+        if bool(
+            redis_database.set(str(email), code, ex=Constants.expiration_time_for_code)
+        )
         else 0
     )
 

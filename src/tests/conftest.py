@@ -56,7 +56,7 @@ def test_sqla_db(settings: Settings, setup_sqla_db) -> SqlAlchemyDatabase:
     return SqlAlchemyDatabase(settings)
 
 
-@pytest.fixture(scope="function", autouse=True)
+@pytest.fixture(autouse=True)
 async def clean_db(session: AsyncSession) -> None:
     await session.execute(text("TRUNCATE TABLE users RESTART IDENTITY CASCADE"))
     redis_db.flushall()
@@ -72,7 +72,7 @@ async def sqla_engine(
 
 
 @pytest.fixture(scope="session")
-async def session_factory(
+def session_factory(
     sqla_engine: AsyncEngine,
 ) -> async_sessionmaker[AsyncSession]:
     return async_sessionmaker(
@@ -91,7 +91,7 @@ async def session(
 
 
 @pytest.fixture
-async def user_create() -> UserCreate:
+def user_create() -> UserCreate:
     return UserCreate(
         username="test_user",
         email="test@example.com",
@@ -127,7 +127,7 @@ def code() -> int:
 
 
 @pytest.fixture
-async def aioboto3_session(settings) -> aioboto3.Session:
+def aioboto3_session(settings) -> aioboto3.Session:
     return aioboto3.Session(
         aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
         aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
@@ -136,5 +136,5 @@ async def aioboto3_session(settings) -> aioboto3.Session:
 
 
 @pytest.fixture
-async def email_client(aioboto3_session) -> EmailClient:
+def email_client(aioboto3_session) -> EmailClient:
     return EmailClient(aioboto3_session=aioboto3_session)
