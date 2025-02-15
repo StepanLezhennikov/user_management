@@ -13,12 +13,12 @@ from app.services.interfaces.repositories.code_verification_repository import (
 
 
 @pytest.fixture
-async def user_repo(session: AsyncSession) -> AUserRepository:
+def user_repo(session: AsyncSession) -> AUserRepository:
     return UserRepository(session)
 
 
 @pytest.fixture
-async def code_verification_repo(session: AsyncSession) -> ACodeVerificationRepository:
+def code_verification_repo(session: AsyncSession) -> ACodeVerificationRepository:
     return CodeVerificationRepository()
 
 
