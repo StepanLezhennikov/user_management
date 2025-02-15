@@ -37,6 +37,7 @@ RUN addgroup -S appgroup && adduser -S appuser -G appgroup && \
     chown -R appuser:appgroup /app
 
 COPY entrypoint.sh /entrypoint.sh
+COPY alembic.ini /alembic.ini
 
 RUN chmod +x /entrypoint.sh
 
@@ -44,4 +45,3 @@ RUN chown -R appuser:appgroup /entrypoint.sh
 
 EXPOSE 8001
 
-USER appuser
