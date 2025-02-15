@@ -32,7 +32,7 @@ async def send_code(
     return Code(code=code)
 
 
-@router.post("/code_verification")
+@router.post("/verifying_code")
 @inject
 async def verify_code(
     code_ver: CodeVerification,

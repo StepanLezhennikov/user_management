@@ -30,3 +30,10 @@ class AuthService(AAuthService):
                     status_code=409, detail="User is already registered"
                 )
             return False
+
+    async def get_user_hashed_password(self, email: EmailStr) -> str:
+        async with self._uow as uow:
+            user = await uow.users.get(email=email)
+            if not user:
+                raise HTTPException(status_code=404, detail="User not found")
+            return user.hashed_password

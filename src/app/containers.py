@@ -8,6 +8,7 @@ from app.services.services.auth import AuthService
 from app.infra.clients.aws.email import EmailClient
 from app.services.services.email import EmailService
 from app.services.services.code_verification import CodeVerificationService
+from app.services.services.password_security import PasswordSecurityService
 from app.infra.repositories.code_verification import CodeVerificationRepository
 
 
@@ -35,3 +36,4 @@ class Container(containers.DeclarativeContainer):
     code_verification_service = providers.Factory(
         CodeVerificationService, code_ver_repo=code_verification_repository
     )
+    password_security_service = providers.Factory(PasswordSecurityService)
