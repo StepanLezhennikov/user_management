@@ -1,6 +1,6 @@
-class UserIsAlreadyRegistered(Exception):
+class UserIsAlreadyRegisteredError(Exception):
     pass
 
 
-class UserNotFound(Exception):
+class UserNotFoundError(Exception):
     pass

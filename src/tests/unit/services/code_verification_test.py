@@ -2,7 +2,7 @@ import pytest
 from pydantic import EmailStr
 
 from app.api.interfaces.services.code_verification import ACodeVerificationService
-from app.services.exceptions.code_verification_repo import CodeIsExpired
+from app.services.exceptions.code_verification_repo import CodeIsExpiredError
 
 
 async def test_verify_code(
@@ -16,7 +16,7 @@ async def test_verify_code(
 async def test_verify_code_invalid(
     code_verification_service: ACodeVerificationService, email: EmailStr, code: int
 ) -> None:
-    with pytest.raises(CodeIsExpired):
+    with pytest.raises(CodeIsExpiredError):
         assert code_verification_service.verify_code(email, code)
 
 

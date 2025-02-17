@@ -5,11 +5,17 @@ from dependency_injector.wiring import Provide, inject
 
 from app.schemas.jwt import Token
 from app.schemas.user import UserCreate, UserSignIn
-from app.api.exceptions.jwt_service import ExpiredSignature, InvalidSignature
-from app.api.exceptions.auth_service import UserNotFound, UserIsAlreadyRegistered
+from app.api.exceptions.jwt_service import (
+    ExpiredSignatureException,
+    InvalidSignatureException,
+)
+from app.api.exceptions.auth_service import (
+    UserNotFoundError,
+    UserIsAlreadyRegisteredError,
+)
 from app.api.interfaces.services.jwt import AJwtService
 from app.api.interfaces.services.auth import AAuthService
-from app.api.exceptions.password_security_service import IncorrectPassword
+from app.api.exceptions.password_security_service import IncorrectPasswordError
 from app.api.interfaces.services.password_security import APasswordSecurityService
 
 logger = getLogger(__name__)
@@ -29,7 +35,7 @@ async def sign_up(
     user_data.password = password_security_service.hash_password(user_data.password)
     try:
         new_user = await auth_service.create(user_data)
-    except UserIsAlreadyRegistered:
+    except UserIsAlreadyRegisteredError:
         raise HTTPException(status_code=409, detail="User is already registered")
 
     return new_user
@@ -46,7 +52,7 @@ async def get_tokens(
 ) -> Token:
     try:
         await password_security_service.verify_password(user_data)
-    except (IncorrectPassword, UserNotFound):
+    except (IncorrectPasswordError, UserNotFoundError):
         raise HTTPException(
             status_code=404, detail="User not found or incorrect password"
         )
@@ -63,9 +69,9 @@ async def refresh_access_token(
 ) -> Token:
     try:
         payload = jwt_service.decode_token(refresh_token)
-    except ExpiredSignature:
+    except ExpiredSignatureException:
         raise HTTPException(status_code=401, detail="Expired refresh token")
-    except InvalidSignature:
+    except InvalidSignatureException:
         raise HTTPException(status_code=401, detail="Invalid refresh token")
 
     new_access_token = jwt_service.create_access_token(payload.model_dump())

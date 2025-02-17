@@ -1,2 +1,2 @@
-class CodeIsExpired(Exception):
+class CodeIsExpiredError(Exception):
     pass

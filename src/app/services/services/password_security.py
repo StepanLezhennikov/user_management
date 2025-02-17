@@ -1,9 +1,9 @@
 import bcrypt
 
 from app.schemas.user import UserSignIn
-from app.api.exceptions.auth_service import UserNotFound
+from app.api.exceptions.auth_service import UserNotFoundError
 from app.services.interfaces.uow.uow import AUnitOfWork
-from app.api.exceptions.password_security_service import IncorrectPassword
+from app.api.exceptions.password_security_service import IncorrectPasswordError
 from app.api.interfaces.services.password_security import APasswordSecurityService
 
 
@@ -16,11 +16,11 @@ class PasswordSecurityService(APasswordSecurityService):
         async with self._uow as uow:
             user = await uow.users.get(email=user_data.email)
             if not user:
-                raise UserNotFound()
+                raise UserNotFoundError()
         if not bcrypt.checkpw(
             user_data.password.encode(), user.hashed_password.encode()
         ):
-            raise IncorrectPassword()
+            raise IncorrectPasswordError()
 
     def hash_password(self, password: str) -> str:
         return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()

@@ -9,7 +9,7 @@ from app.schemas.code_verification import Code, CodeVerification
 from app.api.interfaces.services.auth import AAuthService
 from app.api.interfaces.services.email import AEmailService
 from app.api.interfaces.services.code_verification import ACodeVerificationService
-from app.services.exceptions.code_verification_repo import CodeIsExpired
+from app.services.exceptions.code_verification_repo import CodeIsExpiredError
 
 logger = getLogger(__name__)
 
@@ -43,5 +43,5 @@ async def verify_code(
 ) -> bool:
     try:
         return code_verification_service.verify_code(code_ver.email, code_ver.code)
-    except CodeIsExpired:
+    except CodeIsExpiredError:
         raise HTTPException(status_code=410, detail="Code is expired")

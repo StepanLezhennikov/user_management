@@ -6,8 +6,11 @@ from fastapi.security import OAuth2PasswordBearer
 
 from app.core.config import settings
 from app.schemas.user import User, UserSignIn
-from app.api.exceptions.jwt_service import ExpiredSignature, InvalidSignature
-from app.api.exceptions.auth_service import UserNotFound
+from app.api.exceptions.jwt_service import (
+    ExpiredSignatureException,
+    InvalidSignatureException,
+)
+from app.api.exceptions.auth_service import UserNotFoundError
 from app.api.interfaces.services.jwt import AJwtService
 from app.services.interfaces.repositories.user_repository import AUserRepository
 
@@ -42,13 +45,13 @@ class JwtService(AJwtService):
             )
             return UserSignIn(email=payload["email"], password=payload["password"])
         except ExpiredSignatureError:
-            raise ExpiredSignature()
+            raise ExpiredSignatureException()
         except InvalidSignatureError:
-            raise InvalidSignature()
+            raise InvalidSignatureException()
 
     async def get_current_user(self, token: str) -> User:
         decoded_token = self.decode_token(token)
         user = await self.user_repository.get(email=decoded_token.email)
         if not user:
-            raise UserNotFound()
+            raise UserNotFoundError()
         return user

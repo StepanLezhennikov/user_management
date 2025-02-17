@@ -2,8 +2,11 @@ import pytest
 
 from app.schemas.user import User, UserSignIn
 from app.services.services.jwt import JwtService
-from app.api.exceptions.jwt_service import ExpiredSignature, InvalidSignature
-from app.api.exceptions.auth_service import UserNotFound
+from app.api.exceptions.jwt_service import (
+    ExpiredSignatureException,
+    InvalidSignatureException,
+)
+from app.api.exceptions.auth_service import UserNotFoundError
 
 
 async def test_create_access_token(
@@ -30,14 +33,14 @@ async def test_decode_token(
 async def test_decode_token_expired(
     jwt_service: JwtService, expired_access_token: str, user_sign_in: UserSignIn
 ) -> None:
-    with pytest.raises(ExpiredSignature):
+    with pytest.raises(ExpiredSignatureException):
         jwt_service.decode_token(expired_access_token)
 
 
 async def test_decode_token_invalid_signature(
     jwt_service: JwtService, invalid_access_token: str, user_sign_in: UserSignIn
 ) -> None:
-    with pytest.raises(InvalidSignature):
+    with pytest.raises(InvalidSignatureException):
         jwt_service.decode_token(invalid_access_token)
 
 
@@ -55,5 +58,5 @@ async def test_get_current_user(
 async def test_get_current_user_not_found(
     jwt_service: JwtService, created_access_token: str, user_sign_in: UserSignIn
 ) -> None:
-    with pytest.raises(UserNotFound):
+    with pytest.raises(UserNotFoundError):
         await jwt_service.get_current_user(created_access_token)

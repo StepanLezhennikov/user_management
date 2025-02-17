@@ -2,7 +2,7 @@ import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.schemas.user import User, UserCreate
-from app.api.exceptions.auth_service import UserNotFound
+from app.api.exceptions.auth_service import UserNotFoundError
 from app.api.interfaces.services.auth import AAuthService
 
 
@@ -23,5 +23,5 @@ async def test_check_user_exists(
 async def test_check_user_not_exists(
     auth_service: AAuthService, user_create: UserCreate, session: AsyncSession
 ) -> None:
-    with pytest.raises(UserNotFound):
+    with pytest.raises(UserNotFoundError):
         await auth_service.check_user_exists(user_create.email)
