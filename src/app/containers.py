@@ -2,10 +2,13 @@ import aioboto3
 from dependency_injector import providers, containers
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
+from app.db.session import get_session
 from app.core.config import settings
 from app.infra.uow.uow import Uow
+from app.services.services.jwt import JwtService
 from app.services.services.auth import AuthService
 from app.infra.clients.aws.email import EmailClient
+from app.infra.repositories.user import UserRepository
 from app.services.services.email import EmailService
 from app.services.services.code_verification import CodeVerificationService
 from app.services.services.password_security import PasswordSecurityService
@@ -25,10 +28,12 @@ class Container(containers.DeclarativeContainer):
         aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
         region_name=settings.AWS_REGION_NAME,
     )
+    session = providers.Resource(get_session)
 
     email_client = providers.Factory(EmailClient, aioboto3_session=aioboto3_session)
 
     code_verification_repository = providers.Factory(CodeVerificationRepository)
+    user_repository = providers.Factory(UserRepository, session=session)
     uow = providers.Factory(Uow, session_factory=session_factory)
 
     auth_service = providers.Factory(AuthService, uow=uow)
@@ -36,4 +41,5 @@ class Container(containers.DeclarativeContainer):
     code_verification_service = providers.Factory(
         CodeVerificationService, code_ver_repo=code_verification_repository
     )
-    password_security_service = providers.Factory(PasswordSecurityService)
+    password_security_service = providers.Factory(PasswordSecurityService, uow=uow)
+    jwt_service = providers.Factory(JwtService, user_repository=user_repository)

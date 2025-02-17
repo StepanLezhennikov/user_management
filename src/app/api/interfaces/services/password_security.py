@@ -1,9 +1,11 @@
 from abc import ABC, abstractmethod
 
+from app.schemas.user import UserSignIn
+
 
 class APasswordSecurityService(ABC):
     @abstractmethod
-    def verify_password(self, password: str, stored_password: str) -> bool:
+    async def verify_password(self, user_data: UserSignIn) -> bool:
         pass
 
     @abstractmethod

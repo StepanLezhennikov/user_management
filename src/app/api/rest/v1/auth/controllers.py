@@ -3,8 +3,10 @@ from logging import getLogger
 from fastapi import Depends, APIRouter, HTTPException
 from dependency_injector.wiring import Provide, inject
 
+from app.schemas.jwt import Token
 from app.schemas.user import UserCreate, UserSignIn
-from app.api.exceptions.auth_service import UserNotFound, UserIsRegistered
+from app.api.exceptions.jwt_service import ExpiredSignature, InvalidSignature
+from app.api.exceptions.auth_service import UserNotFound, UserIsAlreadyRegistered
 from app.api.interfaces.services.jwt import AJwtService
 from app.api.interfaces.services.auth import AAuthService
 from app.api.exceptions.password_security_service import IncorrectPassword
@@ -24,29 +26,49 @@ async def sign_up(
         Provide["password_security_service"]
     ),
 ) -> UserCreate:
-    try:
-        await auth_service.check_user_exists(user_data.email)
-    except UserIsRegistered:
-        raise HTTPException(status_code=409, detail="User is already registered")
     user_data.password = password_security_service.hash_password(user_data.password)
-    new_user = await auth_service.create(user_data)
+    try:
+        new_user = await auth_service.create(user_data)
+    except UserIsAlreadyRegistered:
+        raise HTTPException(status_code=409, detail="User is already registered")
+
     return new_user
 
 
-@router.post("/sign_in")
+@router.post("/token")
 @inject
-async def sign_in(
+async def get_tokens(
     user_data: UserSignIn,
-    auth_service: AAuthService = Depends(Provide["auth_service"]),
     password_security_service: APasswordSecurityService = Depends(
         Provide["password_security_service"]
     ),
     jwt_service: AJwtService = Depends(Provide["jwt_service"]),
-) -> bool:
+) -> Token:
     try:
-        hashed_pass = await auth_service.get_user_hashed_password(user_data.email)
-        password_security_service.verify_password(user_data.password, hashed_pass)
-    except (UserNotFound, IncorrectPassword):
-        raise HTTPException(status_code=404, detail="User not found")
-    # TODO логика с jwt
-    return True
+        await password_security_service.verify_password(user_data)
+    except (IncorrectPassword, UserNotFound):
+        raise HTTPException(
+            status_code=404, detail="User not found or incorrect password"
+        )
+
+    access_token = jwt_service.create_access_token(user_data.model_dump())
+    refresh_token = jwt_service.create_refresh_token(user_data.model_dump())
+    return Token(access_token=access_token, refresh_token=refresh_token)
+
+
+@router.post("/refresh")
+@inject
+async def refresh_access_token(
+    refresh_token: str, jwt_service: AJwtService = Depends(Provide["jwt_service"])
+) -> Token:
+    try:
+        payload = jwt_service.decode_token(refresh_token)
+    except ExpiredSignature:
+        raise HTTPException(status_code=401, detail="Expired refresh token")
+    except InvalidSignature:
+        raise HTTPException(status_code=401, detail="Invalid refresh token")
+
+    new_access_token = jwt_service.create_access_token(payload.model_dump())
+    new_refresh_token = jwt_service.create_refresh_token(payload.model_dump())
+
+    return Token(access_token=new_access_token, refresh_token=new_refresh_token)

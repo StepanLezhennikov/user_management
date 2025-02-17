@@ -24,4 +24,5 @@ class UserRepository(AUserRepository):
     async def get(self, **filters) -> User | None:
         query = select(SQLAlchemyUser).filter_by(**filters)
         result = await self._session.execute(query)
-        return result.scalar_one_or_none()
+        user = result.scalar_one_or_none()
+        return User.model_validate(user) if user else None

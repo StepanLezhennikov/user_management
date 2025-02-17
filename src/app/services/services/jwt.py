@@ -1,42 +1,54 @@
-# from datetime import datetime, timedelta
-# from typing import Union
-# from pyjwt import jwt
-# from dotenv import load_dotenv
-#
-# from fastapi import HTTPException, Depends
-# from fastapi.security import OAuth2PasswordBearer
-#
-# from app.core.config import settings
-#
-# load_dotenv()
-#
-# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
-#
-#
-# def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None):
-#     to_encode = data.copy()
-#     expire = datetime.now() + (
-#         expires_delta
-#         if expires_delta
-#         else timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-#     )
-#     to_encode.update({"exp": expire})
-#     encoded_jwt = jwt.encode(
-#         to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM
-#     )
-#     return encoded_jwt
-#
-#
-# def verify_token(token: str):
-#     try:
-#         payload = jwt.decode(
-#             token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
-#         )
-#         return payload
-#     except JWTError:
-#         raise HTTPException(status_code=401, detail="Invalid or expired token")
-#
-#
-# def get_current_user(token: str = Depends(oauth2_scheme)):
-#     payload = verify_token(token)
-#     return payload  # Вернуть можно и username или другие данные
+from datetime import datetime, timezone, timedelta
+
+import jwt
+from jwt.exceptions import ExpiredSignatureError, InvalidSignatureError
+from fastapi.security import OAuth2PasswordBearer
+
+from app.core.config import settings
+from app.schemas.user import User, UserSignIn
+from app.api.exceptions.jwt_service import ExpiredSignature, InvalidSignature
+from app.api.exceptions.auth_service import UserNotFound
+from app.api.interfaces.services.jwt import AJwtService
+from app.services.interfaces.repositories.user_repository import AUserRepository
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+
+class JwtService(AJwtService):
+
+    def __init__(self, user_repository: AUserRepository) -> None:
+        self.user_repository = user_repository
+
+    def create_access_token(self, data: dict) -> str:
+        to_encode = data.copy()
+        expire = datetime.now(timezone.utc) + timedelta(
+            minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
+        )
+        to_encode.update({"exp": expire})
+        return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+
+    def create_refresh_token(self, data: dict) -> str:
+        to_encode = data.copy()
+        expire = datetime.now(timezone.utc) + timedelta(
+            days=settings.REFRESH_TOKEN_EXPIRE_DAYS
+        )
+        to_encode.update({"exp": expire})
+        return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+
+    def decode_token(self, token: str) -> UserSignIn:
+        try:
+            payload = jwt.decode(
+                token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+            )
+            return UserSignIn(email=payload["email"], password=payload["password"])
+        except ExpiredSignatureError:
+            raise ExpiredSignature()
+        except InvalidSignatureError:
+            raise InvalidSignature()
+
+    async def get_current_user(self, token: str) -> User:
+        decoded_token = self.decode_token(token)
+        user = await self.user_repository.get(email=decoded_token.email)
+        if not user:
+            raise UserNotFound()
+        return user

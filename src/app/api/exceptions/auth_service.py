@@ -1,4 +1,4 @@
-class UserIsRegistered(Exception):
+class UserIsAlreadyRegistered(Exception):
     pass
 
 
