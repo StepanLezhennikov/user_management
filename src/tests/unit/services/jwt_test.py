@@ -27,7 +27,7 @@ async def test_decode_token(
     jwt_service: JwtService, created_access_token: str, user_sign_in: UserSignIn
 ) -> None:
     decoded_token = jwt_service.decode_token(created_access_token)
-    assert decoded_token.email == user_sign_in.email
+    assert decoded_token["email"] == user_sign_in.email
 
 
 async def test_decode_token_expired(

@@ -59,7 +59,7 @@ class JwtService(AJwtService):
 
     async def get_current_user(self, token: str) -> User:
         decoded_token = self.decode_token(token)
-        user = await self.user_repository.get(email=decoded_token.email)
+        user = await self.user_repository.get(email=decoded_token["email"])
         if not user:
             raise UserNotFoundError()
         return user
