@@ -17,11 +17,11 @@ async def test_create_user(auth_service: AAuthService, user_create: UserCreate) 
 async def test_check_user_exists(
     auth_service: AAuthService, created_user: User, session: AsyncSession
 ) -> None:
-    assert await auth_service.check_user_exists(created_user.email)
+    assert await auth_service.check_user_exists(email=str(created_user.email))
 
 
 async def test_check_user_not_exists(
     auth_service: AAuthService, user_create: UserCreate, session: AsyncSession
 ) -> None:
     with pytest.raises(UserNotFoundError):
-        await auth_service.check_user_exists(user_create.email)
+        await auth_service.check_user_exists(email=str(user_create.email))

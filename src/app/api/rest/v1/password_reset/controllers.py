@@ -13,6 +13,7 @@ from app.api.exceptions.jwt_service import (
     InvalidSignatureException,
 )
 from app.api.exceptions.auth_service import UserNotFoundError
+from app.services.services.password_security import PasswordSecurityService
 
 logger = getLogger(__name__)
 
@@ -42,10 +43,14 @@ async def password_reset(
     new_password: str,
     auth_service: AuthService = Depends(Provide["auth_service"]),
     jwt_service: JwtService = Depends(Provide["jwt_service"]),
+    password_security_service: PasswordSecurityService = Depends(
+        Provide["password_security_service"]
+    ),
 ) -> bool:
     try:
         payload = jwt_service.decode_token(token)
-        await auth_service.reset_password(int(payload["user_id"]), new_password)
+        hashed_password = password_security_service.hash_password(new_password)
+        await auth_service.reset_password(int(payload["user_id"]), hashed_password)
 
     except ExpiredSignatureException:
         raise HTTPException(status_code=401, detail="Expired refresh token")
