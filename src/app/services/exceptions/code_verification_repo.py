@@ -1,0 +1,2 @@
+class CodeIsExpiredError(Exception):
+    pass

@@ -18,3 +18,8 @@ class User(UserBase):
     id: int
     is_blocked: bool = False
     hashed_password: str
+
+
+class UserSignIn(BaseModel):
+    email: EmailStr
+    password: str

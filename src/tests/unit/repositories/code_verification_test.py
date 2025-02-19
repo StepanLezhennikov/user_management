@@ -1,7 +1,7 @@
 import pytest
-from fastapi import HTTPException
 from pydantic import EmailStr
 
+from app.services.exceptions.code_verification_repo import CodeIsExpiredError
 from app.services.interfaces.repositories.code_verification_repository import (
     ACodeVerificationRepository,
 )
@@ -27,8 +27,5 @@ def test_get_code_expired(
     code_verification_repo: ACodeVerificationRepository,
     email: EmailStr,
 ) -> None:
-    with pytest.raises(HTTPException) as e:
+    with pytest.raises(CodeIsExpiredError):
         code_verification_repo.get_code(email)
-
-    assert e.value.status_code == 410
-    assert e.value.detail == "Code is expired"

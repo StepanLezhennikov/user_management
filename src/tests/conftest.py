@@ -19,7 +19,9 @@ from app.core.config import Settings
 from app.schemas.user import User, UserCreate
 from tests.alembic.utils import drop_database, create_database, apply_migrations
 from app.infra.clients.aws.email import EmailClient
+from app.infra.repositories.user import UserRepository
 from app.infra.repositories.models.user_model import User as UserModel
+from app.services.interfaces.repositories.user_repository import AUserRepository
 
 
 @pytest.fixture(scope="session")
@@ -138,3 +140,8 @@ def aioboto3_session(settings) -> aioboto3.Session:
 @pytest.fixture
 def email_client(aioboto3_session) -> EmailClient:
     return EmailClient(aioboto3_session=aioboto3_session)
+
+
+@pytest.fixture
+async def user_repo(session: AsyncSession) -> AUserRepository:
+    return UserRepository(session)
