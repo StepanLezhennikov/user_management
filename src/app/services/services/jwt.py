@@ -5,7 +5,7 @@ from jwt.exceptions import ExpiredSignatureError, InvalidSignatureError
 from fastapi.security import OAuth2PasswordBearer
 
 from app.core.config import settings
-from app.schemas.user import User, UserSignIn
+from app.schemas.user import User
 from app.api.exceptions.jwt_service import (
     ExpiredSignatureException,
     InvalidSignatureException,
@@ -38,12 +38,20 @@ class JwtService(AJwtService):
         to_encode.update({"exp": expire})
         return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
 
-    def decode_token(self, token: str) -> UserSignIn:
+    def create_reset_token(self, data: dict) -> str:
+        to_encode = data.copy()
+        expire = datetime.now(timezone.utc) + timedelta(
+            days=settings.RESET_TOKEN_EXPIRE_MINUTES
+        )
+        to_encode.update({"exp": expire})
+        return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+
+    def decode_token(self, token: str) -> dict:
         try:
             payload = jwt.decode(
                 token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
             )
-            return UserSignIn(email=payload["email"], password=payload["password"])
+            return payload
         except ExpiredSignatureError:
             raise ExpiredSignatureException()
         except InvalidSignatureError:

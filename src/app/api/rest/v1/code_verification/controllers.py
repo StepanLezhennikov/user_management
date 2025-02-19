@@ -4,11 +4,11 @@ from fastapi import Depends, APIRouter, HTTPException
 from pydantic import EmailStr
 from dependency_injector.wiring import Provide, inject
 
-from app.core.config import Constants
+from app.services.services.auth import AuthService
+from app.services.services.email import EmailService
 from app.schemas.code_verification import Code, CodeVerification
-from app.api.interfaces.services.auth import AAuthService
-from app.api.interfaces.services.email import AEmailService
-from app.api.interfaces.services.code_verification import ACodeVerificationService
+from app.api.exceptions.auth_service import UserNotFoundError
+from app.services.services.code_verification import CodeVerificationService
 from app.services.exceptions.code_verification_repo import CodeIsExpiredError
 
 logger = getLogger(__name__)
@@ -20,15 +20,18 @@ router = APIRouter()
 @inject
 async def send_code(
     user_email: EmailStr,
-    email_service: AEmailService = Depends(Provide["email_service"]),
-    code_verification_service: ACodeVerificationService = Depends(
+    email_service: EmailService = Depends(Provide["email_service"]),
+    code_verification_service: CodeVerificationService = Depends(
         Provide["code_verification_service"]
     ),
-    auth_service: AAuthService = Depends(Provide["auth_service"]),
+    auth_service: AuthService = Depends(Provide["auth_service"]),
 ) -> Code:
-    await auth_service.check_user_exists(user_email)
+    try:
+        await auth_service.check_user_exists(str(user_email))
+    except UserNotFoundError:
+        raise HTTPException(status_code=404, detail="User not found")
     code = code_verification_service.generate_code()
-    await email_service.send_code(user_email, Constants.subject_for_email, code)
+    await email_service.send_code(user_email, code)
     code_verification_service.create(user_email, code)
     return Code(code=code)
 
@@ -37,7 +40,7 @@ async def send_code(
 @inject
 async def verify_code(
     code_ver: CodeVerification,
-    code_verification_service: ACodeVerificationService = Depends(
+    code_verification_service: CodeVerificationService = Depends(
         Provide["code_verification_service"]
     ),
 ) -> bool:

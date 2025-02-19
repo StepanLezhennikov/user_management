@@ -5,6 +5,8 @@ from dependency_injector.wiring import Provide, inject
 
 from app.schemas.jwt import Token
 from app.schemas.user import UserCreate, UserSignIn
+from app.services.services.jwt import JwtService
+from app.services.services.auth import AuthService
 from app.api.exceptions.jwt_service import (
     ExpiredSignatureException,
     InvalidSignatureException,
@@ -13,10 +15,8 @@ from app.api.exceptions.auth_service import (
     UserNotFoundError,
     UserIsAlreadyRegisteredError,
 )
-from app.api.interfaces.services.jwt import AJwtService
-from app.api.interfaces.services.auth import AAuthService
+from app.services.services.password_security import PasswordSecurityService
 from app.api.exceptions.password_security_service import IncorrectPasswordError
-from app.api.interfaces.services.password_security import APasswordSecurityService
 
 logger = getLogger(__name__)
 
@@ -27,8 +27,8 @@ router = APIRouter()
 @inject
 async def sign_up(
     user_data: UserCreate,
-    auth_service: AAuthService = Depends(Provide["auth_service"]),
-    password_security_service: APasswordSecurityService = Depends(
+    auth_service: AuthService = Depends(Provide["auth_service"]),
+    password_security_service: PasswordSecurityService = Depends(
         Provide["password_security_service"]
     ),
 ) -> UserCreate:
@@ -45,10 +45,10 @@ async def sign_up(
 @inject
 async def get_tokens(
     user_data: UserSignIn,
-    password_security_service: APasswordSecurityService = Depends(
+    password_security_service: PasswordSecurityService = Depends(
         Provide["password_security_service"]
     ),
-    jwt_service: AJwtService = Depends(Provide["jwt_service"]),
+    jwt_service: JwtService = Depends(Provide["jwt_service"]),
 ) -> Token:
     try:
         await password_security_service.verify_password(user_data)
@@ -65,7 +65,7 @@ async def get_tokens(
 @router.post("/refresh")
 @inject
 async def refresh_access_token(
-    refresh_token: str, jwt_service: AJwtService = Depends(Provide["jwt_service"])
+    refresh_token: str, jwt_service: JwtService = Depends(Provide["jwt_service"])
 ) -> Token:
     try:
         payload = jwt_service.decode_token(refresh_token)
@@ -74,7 +74,7 @@ async def refresh_access_token(
     except InvalidSignatureException:
         raise HTTPException(status_code=401, detail="Invalid refresh token")
 
-    new_access_token = jwt_service.create_access_token(payload.model_dump())
-    new_refresh_token = jwt_service.create_refresh_token(payload.model_dump())
+    new_access_token = jwt_service.create_access_token(payload)
+    new_refresh_token = jwt_service.create_refresh_token(payload)
 
     return Token(access_token=new_access_token, refresh_token=new_refresh_token)

@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from app.schemas.user import User, UserSignIn
+from app.schemas.user import User
 
 
 class AJwtService(ABC):
@@ -11,7 +11,10 @@ class AJwtService(ABC):
     def create_refresh_token(self, data: dict) -> str: ...
 
     @abstractmethod
-    def decode_token(self, token: str) -> UserSignIn: ...
+    def create_reset_token(self, data: dict) -> str: ...
+
+    @abstractmethod
+    def decode_token(self, token: str) -> dict: ...
 
     @abstractmethod
     async def get_current_user(self, token: str) -> User: ...
