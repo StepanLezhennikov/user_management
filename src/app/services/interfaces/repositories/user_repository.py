@@ -13,5 +13,5 @@ class AUserRepository(ABC):
         pass
 
     @abstractmethod
-    async def update_password(self, email: str, new_password: str) -> str:
+    async def update_password(self, user_id: int, new_password: str) -> str:
         pass

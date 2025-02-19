@@ -1,6 +1,7 @@
 from logging import getLogger
 
 from fastapi import Depends, APIRouter, HTTPException
+from starlette import status
 from dependency_injector.wiring import Provide, inject
 
 from app.schemas.jwt import Token
@@ -23,7 +24,7 @@ logger = getLogger(__name__)
 router = APIRouter()
 
 
-@router.post("/users")
+@router.post("/users", status_code=status.HTTP_201_CREATED)
 @inject
 async def sign_up(
     user_data: UserCreate,
