@@ -27,22 +27,22 @@ from app.services.interfaces.repositories.code_verification_repository import (
 
 
 @pytest.fixture(scope="session")
-async def uow(session_factory: async_sessionmaker[AsyncSession]) -> AUnitOfWork:
+def uow(session_factory: async_sessionmaker[AsyncSession]) -> AUnitOfWork:
     return Uow(session_factory)
 
 
-@pytest.fixture(scope="function")
-async def auth_service(uow: AUnitOfWork) -> AAuthService:
+@pytest.fixture
+def auth_service(uow: AUnitOfWork) -> AAuthService:
     return AuthService(uow)
 
 
 @pytest.fixture
-async def code_verification_repo(session: AsyncSession) -> ACodeVerificationRepository:
+def code_verification_repo(session: AsyncSession) -> ACodeVerificationRepository:
     return CodeVerificationRepository()
 
 
-@pytest.fixture(scope="function")
-async def code_verification_service(code_verification_repo) -> ACodeVerificationService:
+@pytest.fixture
+def code_verification_service(code_verification_repo) -> ACodeVerificationService:
     return CodeVerificationService(code_verification_repo)
 
 
