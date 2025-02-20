@@ -17,11 +17,9 @@ class PasswordSecurityService(APasswordSecurityService):
             user = await uow.users.get(email=user_data.email)
             if not user:
                 raise UserNotFoundError()
-
         if not bcrypt.checkpw(
             user_data.password.encode(), user.hashed_password.encode()
         ):
-            print("INCORRECT PASSWORD")
             raise IncorrectPasswordError()
 
     def hash_password(self, password: str) -> str:

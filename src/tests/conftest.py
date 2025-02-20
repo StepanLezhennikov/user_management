@@ -187,3 +187,15 @@ def created_code(email: EmailStr, redis_database: redis.Redis, code: int) -> int
         )
         else 0
     )
+
+
+@pytest.fixture
+def new_password() -> str:
+    return "new_password"
+
+
+@pytest.fixture
+def new_hashed_password(
+    password_security_service: PasswordSecurityService, new_password
+) -> str:
+    return password_security_service.hash_password(new_password)

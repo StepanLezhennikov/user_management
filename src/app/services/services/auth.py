@@ -42,8 +42,10 @@ class AuthService(AAuthService):
                 raise UserNotFoundError()
             return user.id
 
-    async def reset_password(self, user_id: int, new_password: str) -> bool:
+    async def reset_password(self, user_id: int, hashed_password: str) -> bool:
         await self.check_user_exists(id=user_id)
         async with self._uow as uow:
-            await uow.users.update_password(user_id=user_id, new_password=new_password)
+            await uow.users.update_password(
+                user_id=user_id, new_hashed_password=hashed_password
+            )
         return True

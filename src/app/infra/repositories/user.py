@@ -27,11 +27,11 @@ class UserRepository(AUserRepository):
         user = result.scalar_one_or_none()
         return User.model_validate(user) if user else None
 
-    async def update_password(self, user_id: str, new_password: str) -> str:
+    async def update_password(self, user_id: int, new_hashed_password: str) -> str:
         query = (
             update(SQLAlchemyUser)
             .where(SQLAlchemyUser.id == user_id)
-            .values(hashed_password=new_password)
+            .values(hashed_password=new_hashed_password)
         )
         await self._session.execute(query)
-        return new_password
+        return new_hashed_password
