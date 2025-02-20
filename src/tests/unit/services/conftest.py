@@ -1,19 +1,14 @@
 from datetime import datetime, timezone, timedelta
 
 import jwt
-import redis
 import pytest
-from pydantic import EmailStr
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config import Settings, Constants
+from app.core.config import Settings
 from app.schemas.user import UserSignIn
-from app.infra.uow.uow import Uow
 from app.services.services.jwt import JwtService
 from app.services.services.auth import AuthService
-from app.infra.repositories.user import UserRepository
 from app.services.services.email import EmailService
-from app.api.interfaces.services.jwt import AJwtService
 from app.services.interfaces.uow.uow import AUnitOfWork
 from app.api.interfaces.services.auth import AAuthService
 from app.api.interfaces.services.email import AEmailService
@@ -24,11 +19,6 @@ from app.api.interfaces.services.code_verification import ACodeVerificationServi
 from app.services.interfaces.repositories.code_verification_repository import (
     ACodeVerificationRepository,
 )
-
-
-@pytest.fixture(scope="session")
-async def uow(session_factory: async_sessionmaker[AsyncSession]) -> AUnitOfWork:
-    return Uow(session_factory)
 
 
 @pytest.fixture(scope="function")
@@ -47,29 +37,8 @@ async def code_verification_service(code_verification_repo) -> ACodeVerification
 
 
 @pytest.fixture
-def redis_database(settings) -> redis.Redis:
-    return redis.Redis(host="redis", port=6379, db=0, decode_responses=True)
-
-
-@pytest.fixture
-def created_code(email: EmailStr, redis_database: redis.Redis, code: int) -> int:
-    return (
-        code
-        if bool(
-            redis_database.set(str(email), code, ex=Constants.expiration_time_for_code)
-        )
-        else 0
-    )
-
-
-@pytest.fixture
 def email_service(email_client: AEmailClient) -> AEmailService:
     return EmailService(email_client)
-
-
-@pytest.fixture
-def jwt_service(user_repo: UserRepository) -> AJwtService:
-    return JwtService(user_repo)
 
 
 @pytest.fixture

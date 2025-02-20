@@ -2,6 +2,7 @@ import asyncio
 from typing import Generator, AsyncGenerator
 from asyncio import AbstractEventLoop
 
+import redis
 import pytest
 import aioboto3
 from pydantic import EmailStr
@@ -15,12 +16,18 @@ from sqlalchemy.ext.asyncio import (
 
 from app.db.sqla import SqlAlchemyDatabase
 from app.db.redis import redis_db
-from app.core.config import Settings
+from app.core.config import Settings, Constants
 from app.schemas.user import User, UserCreate
+from app.infra.uow.uow import Uow
 from tests.alembic.utils import drop_database, create_database, apply_migrations
+from app.services.services.jwt import JwtService
 from app.infra.clients.aws.email import EmailClient
 from app.infra.repositories.user import UserRepository
+from app.api.interfaces.services.jwt import AJwtService
+from app.services.interfaces.uow.uow import AUnitOfWork
+from app.services.services.password_security import PasswordSecurityService
 from app.infra.repositories.models.user_model import User as UserModel
+from app.api.interfaces.services.password_security import APasswordSecurityService
 from app.services.interfaces.repositories.user_repository import AUserRepository
 
 
@@ -104,13 +111,17 @@ def user_create() -> UserCreate:
 
 
 @pytest.fixture
-async def created_user(session: AsyncSession, user_create: UserCreate) -> User:
+async def created_user(
+    session: AsyncSession,
+    user_create: UserCreate,
+    password_security_service: PasswordSecurityService,
+) -> User:
     added_user = UserModel(
         username=user_create.username,
         email=str(user_create.email),
         first_name=user_create.first_name,
         last_name=user_create.last_name,
-        hashed_password=user_create.password,
+        hashed_password=password_security_service.hash_password(user_create.password),
     )
     session.add(added_user)
     await session.flush()
@@ -137,6 +148,11 @@ def aioboto3_session(settings) -> aioboto3.Session:
     )
 
 
+@pytest.fixture(scope="session")
+async def uow(session_factory: async_sessionmaker[AsyncSession]) -> AUnitOfWork:
+    return Uow(session_factory)
+
+
 @pytest.fixture
 def email_client(aioboto3_session) -> EmailClient:
     return EmailClient(aioboto3_session=aioboto3_session)
@@ -145,3 +161,29 @@ def email_client(aioboto3_session) -> EmailClient:
 @pytest.fixture
 async def user_repo(session: AsyncSession) -> AUserRepository:
     return UserRepository(session)
+
+
+@pytest.fixture
+async def password_security_service(uow: AUnitOfWork) -> APasswordSecurityService:
+    return PasswordSecurityService(uow=uow)
+
+
+@pytest.fixture
+def jwt_service(user_repo: UserRepository) -> AJwtService:
+    return JwtService(user_repo)
+
+
+@pytest.fixture
+def redis_database(settings) -> redis.Redis:
+    return redis.Redis(host="redis", port=6379, db=0, decode_responses=True)
+
+
+@pytest.fixture
+def created_code(email: EmailStr, redis_database: redis.Redis, code: int) -> int:
+    return (
+        code
+        if bool(
+            redis_database.set(str(email), code, ex=Constants.expiration_time_for_code)
+        )
+        else 0
+    )

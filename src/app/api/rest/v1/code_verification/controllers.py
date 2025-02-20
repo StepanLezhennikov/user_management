@@ -27,7 +27,7 @@ async def send_code(
     auth_service: AuthService = Depends(Provide["auth_service"]),
 ) -> Code:
     try:
-        await auth_service.check_user_exists(str(user_email))
+        await auth_service.check_user_exists(email=str(user_email))
     except UserNotFoundError:
         raise HTTPException(status_code=404, detail="User not found")
     code = code_verification_service.generate_code()

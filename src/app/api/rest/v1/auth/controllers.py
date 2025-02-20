@@ -57,7 +57,6 @@ async def get_tokens(
         raise HTTPException(
             status_code=404, detail="User not found or incorrect password"
         )
-
     access_token = jwt_service.create_access_token(user_data.model_dump())
     refresh_token = jwt_service.create_refresh_token(user_data.model_dump())
     return Token(access_token=access_token, refresh_token=refresh_token)

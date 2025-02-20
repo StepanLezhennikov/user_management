@@ -1,8 +1,8 @@
 from fastapi import APIRouter
 
-from src.app.api.rest.v1.auth import controllers as auth
-from src.app.api.rest.v1.password_reset import controllers as password_reset
-from src.app.api.rest.v1.code_verification import controllers as code_verification
+from app.api.rest.v1.auth import controllers as auth
+from app.api.rest.v1.password_reset import controllers as password_reset
+from app.api.rest.v1.code_verification import controllers as code_verification
 
 api = APIRouter()
 
