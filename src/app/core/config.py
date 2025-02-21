@@ -12,12 +12,12 @@ load_dotenv()
 @dataclass
 class Constants:
     subject_for_code_sending_email: str = "Подтверждение почты"
-    message_for_code_sending_email: str = "Код подтверждения: "
+    message_for_code_sending_email: str = "Код подтверждения: {code}"
     expiration_time_for_code: int = 300
 
     subject_for_password_reset_email: str = "Смена пароля"
     message_for_password_reset_email: str = (
-        "Чтобы сменить пароль перейдите по ссылке http://0.0.0.0:8001/v1/password_reset/?token="
+        "Чтобы сменить пароль перейдите по ссылке http://0.0.0.0:8001/v1/password_reset/?token={password_token}"
     )
 
 

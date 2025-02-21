@@ -5,15 +5,15 @@ from pydantic import EmailStr
 from starlette import status
 from dependency_injector.wiring import Provide, inject
 
-from app.services.services.jwt import JwtService
-from app.services.services.auth import AuthService
-from app.services.services.email import EmailService
 from app.api.exceptions.jwt_service import (
     ExpiredSignatureException,
     InvalidSignatureException,
 )
 from app.api.exceptions.auth_service import UserNotFoundError
-from app.services.services.password_security import PasswordSecurityService
+from app.api.interfaces.services.jwt import AJwtService
+from app.api.interfaces.services.auth import AAuthService
+from app.api.interfaces.services.email import AEmailService
+from app.api.interfaces.services.password_security import APasswordSecurityService
 
 logger = getLogger(__name__)
 
@@ -24,9 +24,9 @@ router = APIRouter()
 @inject
 async def request_password_reset(
     email: EmailStr,
-    email_service: EmailService = Depends(Provide["email_service"]),
-    auth_service: AuthService = Depends(Provide["auth_service"]),
-    jwt_service: JwtService = Depends(Provide["jwt_service"]),
+    email_service: AEmailService = Depends(Provide["email_service"]),
+    auth_service: AAuthService = Depends(Provide["auth_service"]),
+    jwt_service: AJwtService = Depends(Provide["jwt_service"]),
 ) -> None:
     try:
         user_id = await auth_service.get_user_id(str(email))
@@ -41,9 +41,9 @@ async def request_password_reset(
 async def password_reset(
     token: str,
     new_password: str,
-    auth_service: AuthService = Depends(Provide["auth_service"]),
-    jwt_service: JwtService = Depends(Provide["jwt_service"]),
-    password_security_service: PasswordSecurityService = Depends(
+    auth_service: AAuthService = Depends(Provide["auth_service"]),
+    jwt_service: AJwtService = Depends(Provide["jwt_service"]),
+    password_security_service: APasswordSecurityService = Depends(
         Provide["password_security_service"]
     ),
 ) -> bool:
