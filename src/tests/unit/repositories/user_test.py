@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.schemas.user import User, UserCreate
 from app.infra.repositories.user import UserRepository
+from app.services.services.password_security import PasswordSecurityService
 from app.infra.repositories.models.user_model import User as UserModel
 
 
@@ -22,9 +23,7 @@ async def test_create_user(
     assert user.last_name == user_create.last_name
 
 
-async def test_get_user_by_email(
-    user_repo: UserRepository, session: AsyncSession, created_user: User
-) -> None:
+async def test_get_user_by_email(user_repo: UserRepository, created_user: User) -> None:
     user = await user_repo.get(email=created_user.email)
     assert user is not None
     assert user.id == created_user.id
@@ -34,8 +33,25 @@ async def test_get_user_by_email(
 
 
 async def test_get_user_by_email_not_found(
-    user_repo: UserRepository, session: AsyncSession, created_user: User
+    user_repo: UserRepository, created_user: User
 ) -> None:
     wrong_email = "wrong@example.com"
     user = await user_repo.get(email=wrong_email)
     assert user is None
+
+
+async def test_update_password(
+    user_repo: UserRepository,
+    session: AsyncSession,
+    created_user: User,
+    new_hashed_password: str,
+    new_password: str,
+    password_security_service: PasswordSecurityService,
+) -> None:
+    await user_repo.update_password(created_user.id, new_hashed_password)
+
+    query = select(UserModel).where(UserModel.id == created_user.id)
+    result = await session.execute(query)
+    user = result.scalar_one_or_none()
+
+    assert user.hashed_password == new_hashed_password

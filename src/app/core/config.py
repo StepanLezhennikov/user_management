@@ -11,9 +11,14 @@ load_dotenv()
 
 @dataclass
 class Constants:
-    subject_for_email: str = "Подтверждение почты"
-    message_for_email: str = "Код подтверждения: "
+    subject_for_code_sending_email: str = "Подтверждение почты"
+    message_for_code_sending_email: str = "Код подтверждения: {code}"
     expiration_time_for_code: int = 300
+
+    subject_for_password_reset_email: str = "Смена пароля"
+    message_for_password_reset_email: str = (
+        "Чтобы сменить пароль перейдите по ссылке http://0.0.0.0:8001/v1/password_reset/?token={password_token}"
+    )
 
 
 class RDBConfig(BaseModel):
@@ -52,6 +57,7 @@ class Settings(BaseSettings):
     ALGORITHM: str = os.getenv("ALGORITHM")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
     REFRESH_TOKEN_EXPIRE_DAYS: int = os.getenv("REFRESH_TOKEN_EXPIRE_DAYS")
+    RESET_TOKEN_EXPIRE_MINUTES: int = os.getenv("RESET_TOKEN_EXPIRE_MINUTES")
 
     class Config:
         env_file = ".env.example"

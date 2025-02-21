@@ -44,7 +44,7 @@ jobs:
         run: docker-compose up -d
 
       - name: Run tests
-        run: docker-compose exec user_management pytest
+        run: docker-compose exec user_management pytest --cov=.
 
       - name: Stop containers
         run: docker-compose down

@@ -1,6 +1,5 @@
 from logging import getLogger
 
-from pydantic import EmailStr
 from sqlalchemy.exc import IntegrityError
 
 from app.schemas.user import UserCreate
@@ -29,9 +28,24 @@ class AuthService(AAuthService):
             except IntegrityError:
                 raise UserIsAlreadyRegisteredError()
 
-    async def check_user_exists(self, email: EmailStr) -> bool:
+    async def check_user_exists(self, **filters) -> int:
+        async with self._uow as uow:
+            user = await uow.users.get(**filters)
+            if not user:
+                raise UserNotFoundError()
+            return True
+
+    async def get_user_id(self, email: str) -> int:
         async with self._uow as uow:
             user = await uow.users.get(email=email)
             if not user:
                 raise UserNotFoundError()
-            return True
+            return user.id
+
+    async def reset_password(self, user_id: int, hashed_password: str) -> bool:
+        await self.check_user_exists(id=user_id)
+        async with self._uow as uow:
+            await uow.users.update_password(
+                user_id=user_id, new_hashed_password=hashed_password
+            )
+        return True
