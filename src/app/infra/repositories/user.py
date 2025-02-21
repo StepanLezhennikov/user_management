@@ -2,6 +2,7 @@ from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.schemas.user import User, UserCreate
+from app.infra.repositories.models.user_model import Role
 from app.infra.repositories.models.user_model import User as SQLAlchemyUser
 from app.services.interfaces.repositories.user_repository import AUserRepository
 
@@ -10,7 +11,7 @@ class UserRepository(AUserRepository):
     def __init__(self, session: AsyncSession):
         self._session = session
 
-    async def create(self, user: UserCreate) -> UserCreate:
+    async def create(self, user: UserCreate, role_ids: list[int] = None) -> UserCreate:
         added_user = SQLAlchemyUser(
             username=user.username,
             email=str(user.email),
@@ -18,6 +19,13 @@ class UserRepository(AUserRepository):
             last_name=user.last_name,
             hashed_password=user.password,
         )
+        if role_ids:
+            query = select(Role).where(Role.id.in_(role_ids))
+            result = await self._session.execute(query)
+            roles = result.scalars().all()
+
+            added_user.roles = roles
+
         self._session.add(added_user)
         return user
 
