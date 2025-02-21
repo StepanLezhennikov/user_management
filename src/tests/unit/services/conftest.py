@@ -27,12 +27,12 @@ async def auth_service(uow: AUnitOfWork) -> AAuthService:
 
 
 @pytest.fixture
-async def code_verification_repo(session: AsyncSession) -> ACodeVerificationRepository:
+def code_verification_repo(session: AsyncSession) -> ACodeVerificationRepository:
     return CodeVerificationRepository()
 
 
-@pytest.fixture(scope="function")
-async def code_verification_service(code_verification_repo) -> ACodeVerificationService:
+@pytest.fixture
+def code_verification_service(code_verification_repo) -> ACodeVerificationService:
     return CodeVerificationService(code_verification_repo)
 
 
