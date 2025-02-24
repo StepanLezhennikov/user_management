@@ -8,6 +8,7 @@ from app.infra.uow.uow import Uow
 from app.services.services.jwt import JwtService
 from app.services.services.auth import AuthService
 from app.infra.clients.aws.email import EmailClient
+from app.infra.repositories.role import RoleRepository
 from app.infra.repositories.user import UserRepository
 from app.services.services.email import EmailService
 from app.services.services.code_verification import CodeVerificationService
@@ -34,6 +35,7 @@ class Container(containers.DeclarativeContainer):
 
     code_verification_repository = providers.Factory(CodeVerificationRepository)
     user_repository = providers.Factory(UserRepository, session=session)
+    role_repository = providers.Factory(RoleRepository, session=session)
     uow = providers.Factory(Uow, session_factory=session_factory)
 
     auth_service = providers.Factory(AuthService, uow=uow)

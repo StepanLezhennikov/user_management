@@ -4,6 +4,7 @@ from sqlalchemy.exc import IntegrityError
 
 from app.schemas.user import UserCreate
 from app.api.exceptions.auth_service import (
+    InvalidRoleError,
     UserNotFoundError,
     UserIsAlreadyRegisteredError,
 )
@@ -15,14 +16,16 @@ logger = getLogger(__name__)
 
 class AuthService(AAuthService):
     def __init__(self, uow: AUnitOfWork):
-        logger.info("Вызов AuthService __init__")
         self._uow = uow
 
     async def create(self, user_data: UserCreate) -> UserCreate:
-        logger.info("Вызов AuthService register")
         async with self._uow as uow:
             try:
-                new_user = await uow.users.create(user_data)
+                roles = await uow.roles.filter(user_data.roles)
+                roles_ids = [role.id for role in roles]
+                if user_data.roles and not roles_ids:
+                    raise InvalidRoleError()
+                new_user = await uow.users.create(user_data, roles_ids)
                 await uow.commit()
                 return new_user
             except IntegrityError:

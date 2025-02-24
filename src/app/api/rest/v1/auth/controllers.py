@@ -11,6 +11,7 @@ from app.api.exceptions.jwt_service import (
     InvalidSignatureException,
 )
 from app.api.exceptions.auth_service import (
+    InvalidRoleError,
     UserNotFoundError,
     UserIsAlreadyRegisteredError,
 )
@@ -39,6 +40,8 @@ async def sign_up(
         new_user = await auth_service.create(user_data)
     except UserIsAlreadyRegisteredError:
         raise HTTPException(status_code=409, detail="User is already registered")
+    except InvalidRoleError:
+        raise HTTPException(status_code=403, detail="Invalid role")
 
     return new_user
 

@@ -1,10 +1,12 @@
 from abc import ABC, abstractmethod
 
+from app.services.interfaces.repositories.role_repository import ARoleRepository
 from app.services.interfaces.repositories.user_repository import AUserRepository
 
 
 class AUnitOfWork(ABC):
     users: AUserRepository
+    roles: ARoleRepository
 
     async def __aenter__(self) -> "AUnitOfWork":
         return self
