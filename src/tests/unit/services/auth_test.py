@@ -1,18 +1,22 @@
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.schemas.role import RoleCreate
 from app.schemas.user import User, UserCreate, UserSignIn
 from app.api.exceptions.auth_service import UserNotFoundError
 from app.api.interfaces.services.auth import AAuthService
 from app.services.services.password_security import PasswordSecurityService
 
 
-async def test_create_user(auth_service: AAuthService, user_create: UserCreate) -> None:
+async def test_create_user(
+    auth_service: AAuthService, user_create: UserCreate, created_role: RoleCreate
+) -> None:
     user = await auth_service.create(user_create)
     assert user.email == user_create.email
     assert user.username == user_create.username
     assert user.first_name == user_create.first_name
     assert user.last_name == user_create.last_name
+    assert user.roles == [created_role.role]
 
 
 async def test_check_user_exists(

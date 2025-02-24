@@ -3,6 +3,7 @@ from starlette import status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.schemas.role import RoleCreate
 from app.schemas.user import User, UserCreate, UserSignIn
 from app.services.services.jwt import JwtService
 from app.services.services.password_security import PasswordSecurityService
@@ -14,6 +15,7 @@ async def test_sign_up(
     user_create: UserCreate,
     sign_up_url: str,
     session: AsyncSession,
+    created_role: RoleCreate,
 ) -> None:
     response = await http_client.post(
         sign_up_url,
@@ -30,6 +32,7 @@ async def test_sign_up(
 async def test_sign_up_already_registered(
     http_client: AsyncClient,
     created_user: User,
+    created_role: RoleCreate,
     user_create: UserCreate,
     sign_up_url: str,
     session: AsyncSession,

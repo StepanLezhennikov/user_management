@@ -17,6 +17,7 @@ from sqlalchemy.ext.asyncio import (
 from app.db.sqla import SqlAlchemyDatabase
 from app.db.redis import redis_db
 from app.core.config import Settings, Constants
+from app.schemas.role import RoleCreate
 from app.schemas.user import User, UserCreate
 from app.infra.uow.uow import Uow
 from tests.alembic.utils import drop_database, create_database, apply_migrations
@@ -26,6 +27,7 @@ from app.infra.repositories.user import UserRepository
 from app.api.interfaces.services.jwt import AJwtService
 from app.services.interfaces.uow.uow import AUnitOfWork
 from app.services.services.password_security import PasswordSecurityService
+from app.infra.repositories.models.user_model import Role
 from app.infra.repositories.models.user_model import User as UserModel
 from app.api.interfaces.services.password_security import APasswordSecurityService
 from app.services.interfaces.repositories.user_repository import AUserRepository
@@ -68,6 +70,7 @@ def test_sqla_db(settings: Settings, setup_sqla_db) -> SqlAlchemyDatabase:
 @pytest.fixture(autouse=True)
 async def clean_db(session: AsyncSession) -> None:
     await session.execute(text("TRUNCATE TABLE users RESTART IDENTITY CASCADE"))
+    await session.execute(text("TRUNCATE TABLE roles RESTART IDENTITY CASCADE"))
     redis_db.flushall()
     await session.commit()
 
@@ -91,12 +94,14 @@ def session_factory(
     )
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 async def session(
     session_factory: async_sessionmaker[AsyncSession],
 ) -> AsyncSession:
     async with session_factory() as session:
         yield session
+        await session.flush()
+        await session.rollback()
 
 
 @pytest.fixture
@@ -107,7 +112,13 @@ def user_create() -> UserCreate:
         first_name="Test",
         last_name="User",
         password="test_password",
+        roles=["Admin"],
     )
+
+
+@pytest.fixture
+def role_create() -> RoleCreate:
+    return RoleCreate(role="Admin")
 
 
 @pytest.fixture
@@ -127,6 +138,18 @@ async def created_user(
     await session.flush()
     await session.commit()
     return added_user
+
+
+@pytest.fixture
+async def created_role(
+    session: AsyncSession,
+    role_create: RoleCreate,
+) -> RoleCreate:
+    new_role = Role(role=role_create.role)
+    session.add(new_role)
+    await session.flush()
+    await session.commit()
+    return role_create
 
 
 @pytest.fixture
