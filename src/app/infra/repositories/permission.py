@@ -1,4 +1,4 @@
-from sqlalchemy import select, update
+from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.schemas.permission import Permission, PermissionCreate
@@ -44,5 +44,15 @@ class PermissionRepository(APermissionRepository):
 
         return Permission.model_validate(perm)
 
-    async def delete(self, permission: Permission) -> Permission:
-        pass
+    async def delete(self, permission_id: int) -> Permission | None:
+        query = (
+            delete(PermissionModel)
+            .where(PermissionModel.id == permission_id)
+            .returning(PermissionModel)
+        )
+        result = await self._session.execute(query)
+        perm = result.scalar_one_or_none()
+        if not perm:
+            return None
+
+        return Permission.model_validate(perm)

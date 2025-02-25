@@ -18,5 +18,5 @@ class APermissionRepository(ABC):
         pass
 
     @abstractmethod
-    async def delete(self, permission: Permission) -> Permission:
+    async def delete(self, permission_id: int) -> Permission | None:
         pass

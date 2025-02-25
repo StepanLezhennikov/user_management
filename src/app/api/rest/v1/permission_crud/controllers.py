@@ -57,13 +57,19 @@ async def update_permission(
         )
     except PermissionsNotFoundError:
         raise HTTPException(status_code=404, detail="Permissions not found")
+
     return updated_permission
 
 
 @router.delete("/")
 @inject
 async def delete_permission(
-    permission_create: PermissionCreate,
+    permission_id: int,
     permission_service: APermissionService = Depends(Provide["permission_service"]),
-) -> PermissionCreate:
-    return permission_create
+) -> Permission:
+    try:
+        deleted_permission = await permission_service.delete(permission_id)
+    except PermissionsNotFoundError:
+        raise HTTPException(status_code=404, detail="Permissions not found")
+
+    return deleted_permission

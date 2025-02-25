@@ -20,5 +20,5 @@ class APermissionService(ABC):
         pass
 
     @abstractmethod
-    async def delete(self, permission_create: PermissionCreate) -> PermissionCreate:
+    async def delete(self, permission_id: int) -> Permission:
         pass

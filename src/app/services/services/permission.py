@@ -45,5 +45,11 @@ class PermissionService(APermissionService):
 
         return Permission.model_validate(permission)
 
-    async def delete(self, permission_create: PermissionCreate) -> PermissionCreate:
-        return permission_create
+    async def delete(self, permission_id: int) -> Permission:
+        async with self._uow as uow:
+            permission = await uow.permissions.delete(permission_id)
+
+            if not permission:
+                raise PermissionsNotFoundError()
+
+        return permission
