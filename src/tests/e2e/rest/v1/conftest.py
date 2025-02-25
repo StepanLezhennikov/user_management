@@ -11,6 +11,7 @@ from app.main import app
 from app.containers import Container
 from app.core.config import Settings
 from app.schemas.user import User, UserSignIn
+from app.schemas.permission import PermissionFilter
 from app.services.services.jwt import JwtService
 from app.schemas.code_verification import CodeVerification
 
@@ -128,3 +129,13 @@ def reset_token_expired(
 @pytest.fixture
 def reset_token_invalid(reset_token: str) -> str:
     return reset_token[:-5] + "abcde"
+
+
+@pytest.fixture
+def permission_filter() -> PermissionFilter:
+    return PermissionFilter(name="test_permission", description="test_permission")
+
+
+@pytest.fixture
+def crud_permission_url() -> str:
+    return "/v1/permissions/"
