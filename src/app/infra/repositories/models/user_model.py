@@ -5,7 +5,6 @@ from sqlalchemy.orm import Mapped, relationship, mapped_column
 
 from app.db.base import Base
 
-# Определение таблицы role_permission
 role_permission = Table(
     "role_permission",
     Base.metadata,
@@ -18,7 +17,6 @@ role_permission = Table(
 )
 
 
-# Класс Permission
 class Permission(Base):
     __tablename__ = "permissions"
 
@@ -28,13 +26,11 @@ class Permission(Base):
     created_at: Mapped[datetime] = mapped_column(default=datetime.now)
     updated_at: Mapped[datetime] = mapped_column(default=datetime.now)
 
-    # Отношение с классом Role через таблицу role_permission
     roles = relationship(
         "Role", secondary=role_permission, back_populates="permissions"
     )
 
 
-# Класс Role
 class Role(Base):
     __tablename__ = "roles"
 
@@ -43,14 +39,12 @@ class Role(Base):
     created_at: Mapped[datetime] = mapped_column(default=datetime.now)
     updated_at: Mapped[datetime] = mapped_column(default=datetime.now)
 
-    # Отношение с классом Permission через таблицу role_permission
     permissions = relationship(
         "Permission", secondary=role_permission, back_populates="roles"
     )
     users = relationship("User", secondary="user_role", back_populates="roles")
 
 
-# Таблица user_role для связи между User и Role
 user_role = Table(
     "user_role",
     Base.metadata,
@@ -61,7 +55,6 @@ user_role = Table(
 )
 
 
-# Класс User
 class User(Base):
     __tablename__ = "users"
 
@@ -75,5 +68,4 @@ class User(Base):
     created_at: Mapped[datetime] = mapped_column(default=datetime.now)
     updated_at: Mapped[datetime] = mapped_column(default=datetime.now)
 
-    # Отношение с классом Role через таблицу user_role
     roles = relationship("Role", secondary=user_role, back_populates="users")

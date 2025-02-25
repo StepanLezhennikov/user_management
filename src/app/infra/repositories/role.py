@@ -21,6 +21,12 @@ class RoleRepository(ARoleRepository):
         role = result.scalar_one_or_none()
         return Role.model_validate(role) if role else None
 
+    async def update(self, role: Role, **values) -> Role:
+        pass
+
+    async def delete(self, role: Role) -> Role:
+        pass
+
     async def filter(self, roles: list[str]) -> list[Role] | None:
         query = select(RoleModel).where(RoleModel.role.in_(roles))
         result = await self._session.execute(query)
