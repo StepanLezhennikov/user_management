@@ -11,7 +11,9 @@ from app.services.services.auth import AuthService
 from app.services.services.email import EmailService
 from app.services.interfaces.uow.uow import AUnitOfWork
 from app.api.interfaces.services.auth import AAuthService
+from app.services.services.permission import PermissionService
 from app.api.interfaces.services.email import AEmailService
+from app.api.interfaces.services.permission import APermissionService
 from app.services.services.code_verification import CodeVerificationService
 from app.infra.repositories.code_verification import CodeVerificationRepository
 from app.services.interfaces.clients.aws.email import AEmailClient
@@ -24,6 +26,11 @@ from app.services.interfaces.repositories.code_verification_repository import (
 @pytest.fixture(scope="function")
 async def auth_service(uow: AUnitOfWork) -> AAuthService:
     return AuthService(uow)
+
+
+@pytest.fixture(scope="function")
+async def permission_service(uow: AUnitOfWork) -> APermissionService:
+    return PermissionService(uow)
 
 
 @pytest.fixture

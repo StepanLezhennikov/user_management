@@ -21,6 +21,7 @@ from app.schemas.role import RoleCreate
 from app.schemas.user import User, UserCreate
 from app.infra.uow.uow import Uow
 from tests.alembic.utils import drop_database, create_database, apply_migrations
+from app.schemas.permission import PermissionCreate, PermissionUpdate
 from app.services.services.jwt import JwtService
 from app.infra.clients.aws.email import EmailClient
 from app.infra.repositories.user import UserRepository
@@ -29,6 +30,7 @@ from app.services.interfaces.uow.uow import AUnitOfWork
 from app.services.services.password_security import PasswordSecurityService
 from app.infra.repositories.models.user_model import Role
 from app.infra.repositories.models.user_model import User as UserModel
+from app.infra.repositories.models.user_model import Permission as PermissionModel
 from app.api.interfaces.services.password_security import APasswordSecurityService
 from app.services.interfaces.repositories.user_repository import AUserRepository
 
@@ -71,6 +73,7 @@ def test_sqla_db(settings: Settings, setup_sqla_db) -> SqlAlchemyDatabase:
 async def clean_db(session: AsyncSession) -> None:
     await session.execute(text("TRUNCATE TABLE users RESTART IDENTITY CASCADE"))
     await session.execute(text("TRUNCATE TABLE roles RESTART IDENTITY CASCADE"))
+    await session.execute(text("TRUNCATE TABLE permissions RESTART IDENTITY CASCADE"))
     redis_db.flushall()
     await session.commit()
 
@@ -122,6 +125,16 @@ def role_create() -> RoleCreate:
 
 
 @pytest.fixture
+def permission_create() -> PermissionCreate:
+    return PermissionCreate(name="test_permission", description="test_permission")
+
+
+@pytest.fixture
+def permission_update() -> PermissionUpdate:
+    return PermissionUpdate(name="new", description="new")
+
+
+@pytest.fixture
 async def created_user(
     session: AsyncSession,
     user_create: UserCreate,
@@ -150,6 +163,21 @@ async def created_role(
     await session.flush()
     await session.commit()
     return role_create
+
+
+@pytest.fixture
+async def created_permission(
+    session: AsyncSession,
+    permission_create: PermissionCreate,
+) -> PermissionCreate:
+    new_perm = PermissionModel(
+        name=permission_create.name, description=permission_create.description
+    )
+    session.add(new_perm)
+    session.add(new_perm)
+    await session.flush()
+    await session.commit()
+    return permission_create
 
 
 @pytest.fixture
