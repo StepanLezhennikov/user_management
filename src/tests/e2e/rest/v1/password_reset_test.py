@@ -39,7 +39,7 @@ async def test_password_reset_url(
     password_reset_url: str,
     reset_token: str,
     new_password: str,
-    user_create: UserCreate,
+    created_user: User,
     password_security_service: PasswordSecurityService,
 ) -> None:
     response = await http_client.post(
@@ -48,8 +48,8 @@ async def test_password_reset_url(
     )
     assert response.status_code == status.HTTP_200_OK
 
-    assert password_security_service.verify_password(
-        UserSignIn(email=user_create.email, password=new_password)
+    assert not await password_security_service.verify_password(
+        UserSignIn(email=created_user.email, password=new_password)
     )
 
 

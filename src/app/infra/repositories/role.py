@@ -11,7 +11,9 @@ class RoleRepository(ARoleRepository):
         self._session = session
 
     async def create(self, role: RoleCreate) -> RoleCreate:
-        print("Создание роли")
+        new_role = RoleModel(role=role.role)
+        self._session.add(new_role)
+        return role
 
     async def get(self, **filters) -> Role | None:
         query = select(RoleModel).filter_by(**filters)
