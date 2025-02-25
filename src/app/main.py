@@ -7,6 +7,8 @@ container = Container()
 container.wire(modules=[__name__, "app.api.rest.v1.code_verification.controllers"])
 container.wire(modules=[__name__, "app.api.rest.v1.auth.controllers"])
 container.wire(modules=[__name__, "app.api.rest.v1.password_reset.controllers"])
+container.wire(modules=[__name__, "app.api.rest.v1.role_crud.controllers"])
+container.wire(modules=[__name__, "app.api.rest.v1.permission_crud.controllers"])
 
 app = FastAPI()
 

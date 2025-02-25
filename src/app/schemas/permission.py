@@ -8,5 +8,9 @@ class PermissionBase(BaseModel):
     description: str
 
 
+class PermissionCreate(PermissionBase):
+    pass
+
+
 class Permission(PermissionBase):
     id: int
