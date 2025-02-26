@@ -139,3 +139,8 @@ def permission_filter() -> PermissionFilter:
 @pytest.fixture
 def crud_permission_url() -> str:
     return "/v1/permissions/"
+
+
+@pytest.fixture
+def crud_role_url() -> str:
+    return "/v1/roles/"
