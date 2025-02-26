@@ -17,7 +17,7 @@ from sqlalchemy.ext.asyncio import (
 from app.db.sqla import SqlAlchemyDatabase
 from app.db.redis import redis_db
 from app.core.config import Settings, Constants
-from app.schemas.role import RoleCreate
+from app.schemas.role import RoleCreate, RoleUpdate
 from app.schemas.user import User, UserCreate
 from app.infra.uow.uow import Uow
 from tests.alembic.utils import drop_database, create_database, apply_migrations
@@ -121,7 +121,7 @@ def user_create() -> UserCreate:
 
 @pytest.fixture
 def role_create() -> RoleCreate:
-    return RoleCreate(role="Admin")
+    return RoleCreate(role="Admin", permissions_ids=[1])
 
 
 @pytest.fixture
@@ -132,6 +132,11 @@ def permission_create() -> PermissionCreate:
 @pytest.fixture
 def permission_update() -> PermissionUpdate:
     return PermissionUpdate(name="new", description="new")
+
+
+@pytest.fixture
+def role_update() -> RoleUpdate:
+    return RoleUpdate(role="new role")
 
 
 @pytest.fixture

@@ -1,9 +1,10 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.schemas.role import Role, RoleCreate
+from app.schemas.role import Role, RoleCreate, RoleUpdate
 from app.infra.repositories.role import RoleRepository
 from app.infra.repositories.models.user_model import Role as RoleModel
+from app.infra.repositories.models.user_model import role_permission
 
 
 async def test_create_role(
@@ -34,3 +35,55 @@ async def test_get_role_not_found(
 ) -> None:
     role = await role_repo.get(role=role_create.role)
     assert not role
+
+
+async def test_update_role(
+    role_repo: RoleRepository,
+    created_role: RoleCreate,
+    role_update: RoleUpdate,
+) -> None:
+    role = await role_repo.update(1, **(role_update.model_dump()))
+
+    assert role_update.role == role.role
+
+
+async def test_update_role_not_found(
+    role_repo: RoleRepository,
+    role_create: RoleCreate,
+    role_update: RoleUpdate,
+) -> None:
+    role = await role_repo.update(1, **(role_update.model_dump()))
+
+    assert not role
+
+
+async def test_delete_role(
+    role_repo: RoleRepository,
+    created_role: RoleCreate,
+    session: AsyncSession,
+) -> None:
+    deleted_role = await role_repo.delete(1)
+
+    assert deleted_role.role == created_role.role
+
+    query = select(RoleModel).filter_by(role=created_role.role)
+    result = await session.execute(query)
+    role = result.scalar_one_or_none()
+
+    delete_permissions_query = select(role_permission).where(
+        role_permission.c.role_id == 1
+    )
+    result = await session.execute(delete_permissions_query)
+
+    assert result.scalar_one_or_none() is None
+
+    assert role is None
+
+
+async def test_delete_role_not_found(
+    role_repo: RoleRepository,
+    role_create: RoleCreate,
+) -> None:
+    deleted_role = await role_repo.delete(1)
+
+    assert not deleted_role
