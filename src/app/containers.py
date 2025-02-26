@@ -7,6 +7,7 @@ from app.core.config import settings
 from app.infra.uow.uow import Uow
 from app.services.services.jwt import JwtService
 from app.services.services.auth import AuthService
+from app.services.services.role import RoleService
 from app.infra.clients.aws.email import EmailClient
 from app.infra.repositories.role import RoleRepository
 from app.infra.repositories.user import UserRepository
@@ -49,3 +50,4 @@ class Container(containers.DeclarativeContainer):
     password_security_service = providers.Factory(PasswordSecurityService, uow=uow)
     jwt_service = providers.Factory(JwtService, user_repository=user_repository)
     permission_service = providers.Factory(PermissionService, uow=uow)
+    role_service = providers.Factory(RoleService, uow=uow)

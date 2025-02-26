@@ -8,6 +8,14 @@ class RoleBase(BaseModel):
 
 
 class RoleCreate(RoleBase):
+    permissions_ids: list[int]
+
+
+class RoleUpdate(RoleBase):
+    pass
+
+
+class RoleFilter(RoleBase):
     pass
 
 

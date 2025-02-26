@@ -25,7 +25,7 @@ async def test_get_role(
     created_role: Role,
 ) -> None:
     role = await role_repo.get(role=created_role.role)
-    assert role.role == created_role.role
+    assert role[0].role == created_role.role
 
 
 async def test_get_role_not_found(
@@ -33,4 +33,4 @@ async def test_get_role_not_found(
     role_create: RoleCreate,
 ) -> None:
     role = await role_repo.get(role=role_create.role)
-    assert role is None
+    assert not role

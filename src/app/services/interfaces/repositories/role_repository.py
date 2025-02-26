@@ -9,15 +9,15 @@ class ARoleRepository(ABC):
         pass
 
     @abstractmethod
-    async def get(self, **filters) -> Role:
+    async def get(self, **filters) -> list[Role]:
         pass
 
     @abstractmethod
-    async def update(self, role: Role, **values) -> Role:
+    async def update(self, role_id: int, **values) -> Role:
         pass
 
     @abstractmethod
-    async def delete(self, role: Role) -> Role:
+    async def delete(self, role_id: int) -> Role:
         pass
 
     @abstractmethod

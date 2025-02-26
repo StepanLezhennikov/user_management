@@ -1,8 +1,10 @@
-from sqlalchemy import select
+from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.schemas.role import Role, RoleCreate
 from app.infra.repositories.models.user_model import Role as RoleModel
+from app.infra.repositories.models.user_model import Permission as PermissionModel
+from app.infra.repositories.models.user_model import role_permission
 from app.services.interfaces.repositories.role_repository import ARoleRepository
 
 
@@ -12,20 +14,51 @@ class RoleRepository(ARoleRepository):
 
     async def create(self, role: RoleCreate) -> RoleCreate:
         new_role = RoleModel(role=role.role)
+
+        if role.permissions_ids:
+            query = select(PermissionModel).filter(
+                PermissionModel.id.in_(role.permissions_ids)
+            )
+            result = await self._session.execute(query)
+            permissions = result.scalars().all()
+            new_role.permissions = permissions
+
         self._session.add(new_role)
+
         return role
 
-    async def get(self, **filters) -> Role | None:
+    async def get(self, **filters) -> list[Role] | None:
         query = select(RoleModel).filter_by(**filters)
         result = await self._session.execute(query)
+        raw_results = result.scalars().all()
+
+        permissions = list(map(lambda perm: Role.model_validate(perm), raw_results))
+        return permissions
+
+    async def update(self, role_id: int, **values) -> Role | None:
+        stmt = (
+            update(RoleModel)
+            .where(RoleModel.id == role_id)
+            .values(**values)
+            .returning(RoleModel)
+        )
+        result = await self._session.execute(stmt)
+
         role = result.scalar_one_or_none()
+
         return Role.model_validate(role) if role else None
 
-    async def update(self, role: Role, **values) -> Role:
-        pass
+    async def delete(self, role_id: int) -> Role | None:
+        delete_permissions_query = delete(role_permission).where(
+            role_permission.c.role_id == role_id
+        )
+        await self._session.execute(delete_permissions_query)
 
-    async def delete(self, role: Role) -> Role:
-        pass
+        query = delete(RoleModel).where(RoleModel.id == role_id).returning(RoleModel)
+        result = await self._session.execute(query)
+        role = result.scalar_one_or_none()
+
+        return Role.model_validate(role) if role else None
 
     async def filter(self, roles: list[str]) -> list[Role] | None:
         query = select(RoleModel).where(RoleModel.role.in_(roles))

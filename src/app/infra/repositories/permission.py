@@ -39,10 +39,8 @@ class PermissionRepository(APermissionRepository):
         result = await self._session.execute(stmt)
 
         perm = result.scalar_one_or_none()
-        if not perm:
-            return None
 
-        return Permission.model_validate(perm)
+        return Permission.model_validate(perm) if perm else None
 
     async def delete(self, permission_id: int) -> Permission | None:
         query = (
@@ -52,7 +50,5 @@ class PermissionRepository(APermissionRepository):
         )
         result = await self._session.execute(query)
         perm = result.scalar_one_or_none()
-        if not perm:
-            return None
 
-        return Permission.model_validate(perm)
+        return Permission.model_validate(perm) if perm else None
