@@ -1,7 +1,9 @@
 from sqlalchemy import delete, select, update
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.schemas.role import Role, RoleCreate
+from app.api.exceptions.role_service import RoleAlreadyExistsError
 from app.infra.repositories.models.user_model import Role as RoleModel
 from app.infra.repositories.models.user_model import Permission as PermissionModel
 from app.infra.repositories.models.user_model import role_permission
@@ -23,7 +25,11 @@ class RoleRepository(ARoleRepository):
             permissions = result.scalars().all()
             new_role.permissions = permissions
 
-        self._session.add(new_role)
+        try:
+            self._session.add(new_role)
+            await self._session.flush()
+        except IntegrityError:
+            raise RoleAlreadyExistsError()
 
         return role
 

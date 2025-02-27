@@ -1,7 +1,5 @@
-from sqlalchemy.exc import IntegrityError
-
 from app.schemas.role import Role, RoleCreate, RoleUpdate
-from app.api.exceptions.role_service import RoleNotFoundError, RoleAlreadyExistsError
+from app.api.exceptions.role_service import RoleNotFoundError
 from app.services.interfaces.uow.uow import AUnitOfWork
 from app.api.interfaces.services.role import ARoleService
 
@@ -11,12 +9,8 @@ class RoleService(ARoleService):
         self._uow = uow
 
     async def create(self, role_create: RoleCreate) -> RoleCreate:
-        try:
-            async with self._uow as uow:
-                await uow.roles.create(role_create)
-                await uow.commit()
-        except IntegrityError:
-            raise RoleAlreadyExistsError()
+        async with self._uow as uow:
+            await uow.roles.create(role_create)
 
         return role_create
 

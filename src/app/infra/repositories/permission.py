@@ -1,7 +1,9 @@
 from sqlalchemy import delete, select, update
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.schemas.permission import Permission, PermissionCreate
+from app.api.exceptions.permission_service import PermissionAlreadyExistsError
 from app.infra.repositories.models.user_model import Permission as PermissionModel
 from app.services.interfaces.repositories.permission_repository import (
     APermissionRepository,
@@ -13,10 +15,16 @@ class PermissionRepository(APermissionRepository):
         self._session = session
 
     async def create(self, permission: PermissionCreate) -> PermissionCreate:
-        new_permission = PermissionModel(
-            name=permission.name, description=permission.description
-        )
-        self._session.add(new_permission)
+        try:
+            new_permission = PermissionModel(
+                name=permission.name, description=permission.description
+            )
+            self._session.add(new_permission)
+            await self._session.flush()
+
+        except IntegrityError:
+            raise PermissionAlreadyExistsError()
+
         return permission
 
     async def get(self, **filters) -> list[Permission] | None:

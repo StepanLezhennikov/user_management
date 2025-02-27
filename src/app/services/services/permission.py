@@ -1,11 +1,6 @@
-from sqlalchemy.exc import IntegrityError
-
 from app.schemas.permission import Permission, PermissionCreate, PermissionUpdate
 from app.services.interfaces.uow.uow import AUnitOfWork
-from app.api.exceptions.permission_service import (
-    PermissionsNotFoundError,
-    PermissionAlreadyExistsError,
-)
+from app.api.exceptions.permission_service import PermissionsNotFoundError
 from app.api.interfaces.services.permission import APermissionService
 
 
@@ -14,12 +9,8 @@ class PermissionService(APermissionService):
         self._uow = uow
 
     async def create(self, permission_create: PermissionCreate) -> PermissionCreate:
-        try:
-            async with self._uow as uow:
-                await uow.permissions.create(permission_create)
-                await uow.commit()
-        except IntegrityError:
-            raise PermissionAlreadyExistsError()
+        async with self._uow as uow:
+            await uow.permissions.create(permission_create)
 
         return permission_create
 
