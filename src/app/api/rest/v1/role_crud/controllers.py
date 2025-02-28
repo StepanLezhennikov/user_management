@@ -5,11 +5,16 @@ from dependency_injector.wiring import Provide, inject
 from app.schemas.role import Role, RoleCreate, RoleFilter, RoleUpdate
 from app.api.exceptions.role_service import RoleNotFoundError, RoleAlreadyExistsError
 from app.api.interfaces.services.role import ARoleService
+from app.services.services.permission import permission_required
 
 router = APIRouter()
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/",
+    dependencies=[Depends(permission_required("create_role"))],
+    status_code=status.HTTP_201_CREATED,
+)
 @inject
 async def create_role(
     role_create: RoleCreate,

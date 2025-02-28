@@ -1,20 +1,22 @@
+from typing import Annotated
 from datetime import datetime, timezone, timedelta
 
 import jwt
+from fastapi import Depends, Security
 from jwt.exceptions import ExpiredSignatureError, InvalidSignatureError
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from dependency_injector.wiring import Provide, inject
 
 from app.core.config import settings
-from app.schemas.user import User
+from app.schemas.user import UserAuthenticated
 from app.api.exceptions.jwt_service import (
     ExpiredSignatureException,
     InvalidSignatureException,
 )
-from app.api.exceptions.auth_service import UserNotFoundError
 from app.api.interfaces.services.jwt import AJwtService
 from app.services.interfaces.repositories.user_repository import AUserRepository
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+http_bearer = HTTPBearer()
 
 
 class JwtService(AJwtService):
@@ -57,9 +59,15 @@ class JwtService(AJwtService):
         except InvalidSignatureError:
             raise InvalidSignatureException()
 
-    async def get_current_user(self, token: str) -> User:
-        decoded_token = self.decode_token(token)
-        user = await self.user_repository.get(email=decoded_token["email"])
-        if not user:
-            raise UserNotFoundError()
-        return user
+
+@inject
+async def get_current_user(
+    credentials: Annotated[HTTPAuthorizationCredentials, Security(http_bearer)],
+    jwt_service: AJwtService = Depends(Provide["jwt_service"]),
+) -> UserAuthenticated:
+    decoded_token = jwt_service.decode_token(token=credentials.credentials)
+
+    current_user = UserAuthenticated(
+        id=decoded_token["id"], permissions=decoded_token["permissions"]
+    )
+    return current_user

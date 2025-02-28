@@ -4,6 +4,7 @@ from fastapi import Depends, APIRouter, HTTPException
 from pydantic import EmailStr
 from dependency_injector.wiring import Provide, inject
 
+from app.schemas.response import CustomResponse
 from app.schemas.code_verification import Code, CodeVerification
 from app.api.exceptions.auth_service import UserNotFoundError
 from app.api.interfaces.services.auth import AAuthService
@@ -43,8 +44,9 @@ async def verify_code(
     code_verification_service: ACodeVerificationService = Depends(
         Provide["code_verification_service"]
     ),
-) -> bool:
+) -> CustomResponse:
     try:
-        return code_verification_service.verify_code(code_ver.email, code_ver.code)
+        code_verification_service.verify_code(code_ver.email, code_ver.code)
+        return CustomResponse(message="Code is valid")
     except CodeIsExpiredError:
         raise HTTPException(status_code=410, detail="Code is expired")

@@ -5,6 +5,7 @@ from pydantic import EmailStr
 from starlette import status
 from dependency_injector.wiring import Provide, inject
 
+from app.schemas.response import CustomResponse
 from app.api.exceptions.jwt_service import (
     ExpiredSignatureException,
     InvalidSignatureException,
@@ -27,13 +28,15 @@ async def request_password_reset(
     email_service: AEmailService = Depends(Provide["email_service"]),
     auth_service: AAuthService = Depends(Provide["auth_service"]),
     jwt_service: AJwtService = Depends(Provide["jwt_service"]),
-) -> None:
+) -> CustomResponse:
     try:
-        user_id = await auth_service.get_user_id(str(email))
+        user = await auth_service.get(email=str(email))
     except UserNotFoundError:
         raise HTTPException(status_code=404, detail="User not found")
-    reset_token = jwt_service.create_reset_token({"user_id": user_id})
+    reset_token = jwt_service.create_reset_token({"user_id": user.id})
     await email_service.send_password_reset_link(email, reset_token)
+
+    return CustomResponse(message="Password reset link sent successfully")
 
 
 @router.post("/")
@@ -46,7 +49,7 @@ async def password_reset(
     password_security_service: APasswordSecurityService = Depends(
         Provide["password_security_service"]
     ),
-) -> bool:
+) -> CustomResponse:
     try:
         payload = jwt_service.decode_token(token)
         hashed_password = password_security_service.hash_password(new_password)
@@ -61,4 +64,4 @@ async def password_reset(
     except UserNotFoundError:
         raise HTTPException(status_code=404, detail="User not found")
 
-    return True
+    return CustomResponse(message="Password reset successfully")
