@@ -68,4 +68,6 @@ class User(Base):
     created_at: Mapped[datetime] = mapped_column(default=datetime.now)
     updated_at: Mapped[datetime] = mapped_column(default=datetime.now)
 
-    roles = relationship("Role", secondary=user_role, back_populates="users")
+    roles = relationship(
+        "Role", secondary=user_role, back_populates="users", lazy="joined"
+    )

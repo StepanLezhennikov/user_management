@@ -1,11 +1,13 @@
 from logging import getLogger
 
 from fastapi import Depends, APIRouter, HTTPException
+from pydantic import EmailStr
 from starlette import status
 from dependency_injector.wiring import Provide, inject
 
 from app.schemas.jwt import Token
-from app.schemas.user import UserCreate, UserSignIn
+from app.schemas.user import User, UserCreate, UserSignIn, UserForToken
+from app.schemas.response import CustomResponse
 from app.api.exceptions.jwt_service import (
     ExpiredSignatureException,
     InvalidSignatureException,
@@ -19,7 +21,6 @@ from app.api.interfaces.services.jwt import AJwtService
 from app.api.interfaces.services.auth import AAuthService
 from app.services.services.password_security import PasswordSecurityService
 from app.api.exceptions.password_security_service import IncorrectPasswordError
-from app.api.interfaces.services.password_security import APasswordSecurityService
 
 logger = getLogger(__name__)
 
@@ -34,7 +35,7 @@ async def sign_up(
     password_security_service: PasswordSecurityService = Depends(
         Provide["password_security_service"]
     ),
-) -> UserCreate:
+) -> User:
     user_data.password = password_security_service.hash_password(user_data.password)
     try:
         new_user = await auth_service.create(user_data)
@@ -46,23 +47,39 @@ async def sign_up(
     return new_user
 
 
-@router.post("/token")
+@router.post("/sign_in")
 @inject
-async def get_tokens(
+async def sign_in(
     user_data: UserSignIn,
-    password_security_service: APasswordSecurityService = Depends(
+    password_security_service: PasswordSecurityService = Depends(
         Provide["password_security_service"]
     ),
-    jwt_service: AJwtService = Depends(Provide["jwt_service"]),
-) -> Token:
+) -> CustomResponse:
     try:
         await password_security_service.verify_password(user_data)
     except (IncorrectPasswordError, UserNotFoundError):
-        raise HTTPException(
-            status_code=404, detail="User not found or incorrect password"
-        )
-    access_token = jwt_service.create_access_token(user_data.model_dump())
-    refresh_token = jwt_service.create_refresh_token(user_data.model_dump())
+        raise HTTPException(status_code=403, detail="Invalid password or email")
+
+    return CustomResponse(message="Successfully signed in")
+
+
+@router.get("/token")
+@inject
+async def get_tokens(
+    user_email: EmailStr,
+    auth_service: AAuthService = Depends(Provide["auth_service"]),
+    jwt_service: AJwtService = Depends(Provide["jwt_service"]),
+) -> Token:
+    try:
+        permissions = await auth_service.get_user_permissions(email=user_email)
+        user = await auth_service.get(email=user_email)
+    except UserNotFoundError:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    user_for_token = UserForToken(id=user.id, permissions=permissions)
+
+    access_token = jwt_service.create_access_token(user_for_token.model_dump())
+    refresh_token = jwt_service.create_refresh_token(user_for_token.model_dump())
     return Token(access_token=access_token, refresh_token=refresh_token)
 
 

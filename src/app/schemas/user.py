@@ -1,5 +1,7 @@
 from pydantic import EmailStr, BaseModel, ConfigDict
 
+from app.schemas.role import Role
+
 
 class UserBase(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -19,6 +21,16 @@ class User(UserBase):
     id: int
     is_blocked: bool = False
     hashed_password: str
+    roles: list[Role]
+
+
+class UserForToken(BaseModel):
+    id: int
+    permissions: list[str]
+
+
+class UserAuthenticated(UserForToken):
+    pass
 
 
 class UserSignIn(BaseModel):

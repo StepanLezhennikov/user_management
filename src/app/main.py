@@ -4,11 +4,9 @@ from app.containers import Container
 from app.api.rest.controllers import api
 
 container = Container()
-container.wire(modules=[__name__, "app.api.rest.v1.code_verification.controllers"])
-container.wire(modules=[__name__, "app.api.rest.v1.auth.controllers"])
-container.wire(modules=[__name__, "app.api.rest.v1.password_reset.controllers"])
-container.wire(modules=[__name__, "app.api.rest.v1.role_crud.controllers"])
-container.wire(modules=[__name__, "app.api.rest.v1.permission_crud.controllers"])
+
+container.wire(packages=[__name__, "app.api.rest.v1"])
+container.wire(packages=[__name__, "app.services.services"])
 
 app = FastAPI()
 
