@@ -6,7 +6,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import Settings
 from app.schemas.user import UserSignIn
-from app.services.services.jwt import JwtService
 from app.services.services.auth import AuthService
 from app.services.services.email import EmailService
 from app.services.interfaces.uow.uow import AUnitOfWork
@@ -51,11 +50,6 @@ def email_service(email_client: AEmailClient) -> AEmailService:
 @pytest.fixture
 def user_sign_in() -> UserSignIn:
     return UserSignIn(email="test@example.com", password="test_password")
-
-
-@pytest.fixture
-def created_access_token(jwt_service: JwtService, user_sign_in: UserSignIn) -> str:
-    return jwt_service.create_access_token(user_sign_in.model_dump())
 
 
 @pytest.fixture

@@ -6,7 +6,7 @@ from app.schemas.role import Role, RoleCreate
 from app.api.exceptions.role_service import RoleAlreadyExistsError
 from app.infra.repositories.models.user_model import Role as RoleModel
 from app.infra.repositories.models.user_model import Permission as PermissionModel
-from app.infra.repositories.models.user_model import role_permission
+from app.infra.repositories.models.user_model import user_role, role_permission
 from app.services.interfaces.repositories.role_repository import ARoleRepository
 
 
@@ -55,10 +55,13 @@ class RoleRepository(ARoleRepository):
         return Role.model_validate(role) if role else None
 
     async def delete(self, role_id: int) -> Role | None:
-        delete_permissions_query = delete(role_permission).where(
+        delete_role_permission_query = delete(role_permission).where(
             role_permission.c.role_id == role_id
         )
-        await self._session.execute(delete_permissions_query)
+        await self._session.execute(delete_role_permission_query)
+
+        delete_user_role_query = delete(user_role).where(user_role.c.role_id == role_id)
+        await self._session.execute(delete_user_role_query)
 
         query = delete(RoleModel).where(RoleModel.id == role_id).returning(RoleModel)
         result = await self._session.execute(query)

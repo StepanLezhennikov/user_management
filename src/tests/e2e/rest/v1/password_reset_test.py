@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.schemas.user import User, UserCreate, UserSignIn
 from app.services.services.password_security import PasswordSecurityService
 from app.infra.repositories.models.user_model import User as UserModel
+from app.infra.repositories.models.user_model import user_role
 
 
 async def test_request_password_reset(
@@ -90,8 +91,12 @@ async def test_password_reset_url_user_not_found(
     password_security_service: PasswordSecurityService,
     session: AsyncSession,
 ) -> None:
+    delete_relations = delete(user_role).where(user_role.c.user_id == 1)
+    await session.execute(delete_relations)
     query = delete(UserModel).where(UserModel.email == user_create.email)
+
     await session.execute(query)
+
     await session.commit()
 
     response = await http_client.post(

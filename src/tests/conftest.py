@@ -6,7 +6,7 @@ import redis
 import pytest
 import aioboto3
 from pydantic import EmailStr
-from sqlalchemy import NullPool, text
+from sqlalchemy import NullPool, text, select
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
@@ -18,10 +18,10 @@ from app.db.sqla import SqlAlchemyDatabase
 from app.db.redis import redis_db
 from app.core.config import Settings, Constants
 from app.schemas.role import RoleCreate, RoleUpdate
-from app.schemas.user import User, UserCreate
+from app.schemas.user import User, UserCreate, UserForToken
 from app.infra.uow.uow import Uow
 from tests.alembic.utils import drop_database, create_database, apply_migrations
-from app.schemas.permission import PermissionCreate, PermissionUpdate
+from app.schemas.permission import Permission, PermissionCreate, PermissionUpdate
 from app.services.services.jwt import JwtService
 from app.infra.clients.aws.email import EmailClient
 from app.infra.repositories.user import UserRepository
@@ -121,12 +121,34 @@ def user_create() -> UserCreate:
 
 @pytest.fixture
 def role_create() -> RoleCreate:
-    return RoleCreate(role="Admin", permissions_ids=[1])
+    return RoleCreate(role="test_role", permissions_ids=[1])
+
+
+@pytest.fixture
+async def role_create_admin(
+    permission_create_list: list[PermissionCreate],
+    session: AsyncSession,
+) -> RoleCreate:
+    query = select(PermissionModel.id).where(
+        PermissionModel.name.in_([perm.name for perm in permission_create_list])
+    )
+    result = await session.execute(query)
+    permissions_ids = list(result.scalars().all())
+    return RoleCreate(role="Admin", permissions_ids=permissions_ids)
 
 
 @pytest.fixture
 def permission_create() -> PermissionCreate:
     return PermissionCreate(name="test_permission", description="test_permission")
+
+
+@pytest.fixture
+def permission_create_list() -> list[PermissionCreate]:
+    permissions = [
+        PermissionCreate(name=name, description=description)
+        for name, description in Constants().PERMISSIONS.items()
+    ]
+    return permissions
 
 
 @pytest.fixture
@@ -144,6 +166,7 @@ async def created_user(
     session: AsyncSession,
     user_create: UserCreate,
     password_security_service: PasswordSecurityService,
+    created_role_admin: RoleCreate,
 ) -> User:
     added_user = UserModel(
         username=user_create.username,
@@ -152,10 +175,40 @@ async def created_user(
         last_name=user_create.last_name,
         hashed_password=password_security_service.hash_password(user_create.password),
     )
+
+    query = select(Role).where(Role.role == created_role_admin.role)
+    result = await session.execute(query)
+    role = result.scalar_one_or_none()
+
+    added_user.roles = [role]
+
     session.add(added_user)
     await session.flush()
     await session.commit()
-    return added_user
+    return User.model_validate(added_user)
+
+
+@pytest.fixture
+async def created_role_admin(
+    session: AsyncSession,
+    role_create_admin: RoleCreate,
+    created_permission_list: list[PermissionCreate],
+) -> RoleCreate:
+    new_role = Role(role=role_create_admin.role)
+
+    query = select(PermissionModel).filter(
+        PermissionModel.name.in_(
+            [permission.name for permission in created_permission_list]
+        )
+    )
+    result = await session.execute(query)
+    permissions = result.scalars().all()
+    new_role.permissions = permissions
+
+    session.add(new_role)
+    await session.flush()
+    await session.commit()
+    return role_create_admin
 
 
 @pytest.fixture
@@ -164,6 +217,7 @@ async def created_role(
     role_create: RoleCreate,
 ) -> RoleCreate:
     new_role = Role(role=role_create.role)
+
     session.add(new_role)
     await session.flush()
     await session.commit()
@@ -171,18 +225,35 @@ async def created_role(
 
 
 @pytest.fixture
+async def created_permission_list(
+    session: AsyncSession,
+    permission_create_list: list[PermissionCreate],
+) -> list[Permission]:
+
+    new_permissions = [
+        PermissionModel(name=permission.name, description=permission.description)
+        for permission in permission_create_list
+    ]
+    session.add_all(new_permissions)
+    await session.flush()
+    await session.commit()
+    return new_permissions
+
+
+@pytest.fixture
 async def created_permission(
     session: AsyncSession,
     permission_create: PermissionCreate,
-) -> PermissionCreate:
-    new_perm = PermissionModel(
+) -> Permission:
+
+    new_permission = PermissionModel(
         name=permission_create.name, description=permission_create.description
     )
-    session.add(new_perm)
-    session.add(new_perm)
+
+    session.add(new_permission)
     await session.flush()
     await session.commit()
-    return permission_create
+    return new_permission
 
 
 @pytest.fixture
@@ -255,3 +326,18 @@ def new_hashed_password(
     password_security_service: PasswordSecurityService, new_password
 ) -> str:
     return password_security_service.hash_password(new_password)
+
+
+@pytest.fixture
+def user_for_token(
+    created_user: User, permission_create_list: list[PermissionCreate]
+) -> UserForToken:
+    return UserForToken(
+        id=created_user.id,
+        permissions=[permission.name for permission in permission_create_list],
+    )
+
+
+@pytest.fixture
+def created_access_token(jwt_service: JwtService, user_for_token: UserForToken) -> str:
+    return jwt_service.create_access_token(user_for_token.model_dump())

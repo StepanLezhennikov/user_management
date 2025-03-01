@@ -23,10 +23,10 @@ async def test_create_role(
 
 async def test_get_role(
     role_repo: RoleRepository,
-    created_role: Role,
+    created_role_admin: Role,
 ) -> None:
-    role = await role_repo.get(role=created_role.role)
-    assert role[0].role == created_role.role
+    role = await role_repo.get(role=created_role_admin.role)
+    assert role[0].role == created_role_admin.role
 
 
 async def test_get_role_not_found(
@@ -39,7 +39,7 @@ async def test_get_role_not_found(
 
 async def test_update_role(
     role_repo: RoleRepository,
-    created_role: RoleCreate,
+    created_role_admin: RoleCreate,
     role_update: RoleUpdate,
 ) -> None:
     role = await role_repo.update(1, **(role_update.model_dump()))
@@ -59,14 +59,14 @@ async def test_update_role_not_found(
 
 async def test_delete_role(
     role_repo: RoleRepository,
-    created_role: RoleCreate,
+    created_role_admin: RoleCreate,
     session: AsyncSession,
 ) -> None:
     deleted_role = await role_repo.delete(1)
 
-    assert deleted_role.role == created_role.role
+    assert deleted_role.role == created_role_admin.role
 
-    query = select(RoleModel).filter_by(role=created_role.role)
+    query = select(RoleModel).filter_by(role=created_role_admin.role)
     result = await session.execute(query)
     role = result.scalar_one_or_none()
 

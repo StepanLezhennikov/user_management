@@ -12,7 +12,7 @@ router = APIRouter()
 
 @router.post(
     "/",
-    dependencies=[Depends(permission_required("create_role"))],
+    dependencies=[Depends(permission_required("role_create"))],
     status_code=status.HTTP_201_CREATED,
 )
 @inject
@@ -27,7 +27,10 @@ async def create_role(
     return role_create
 
 
-@router.get("/")
+@router.get(
+    "/",
+    dependencies=[Depends(permission_required("role_get"))],
+)
 @inject
 async def get_role(
     role_filter: RoleFilter = Query(default=None),
@@ -41,7 +44,7 @@ async def get_role(
     return roles
 
 
-@router.put("/")
+@router.put("/", dependencies=[Depends(permission_required("role_update"))])
 @inject
 async def update_role(
     role_id: int,
@@ -56,7 +59,7 @@ async def update_role(
     return updated_role
 
 
-@router.delete("/")
+@router.delete("/", dependencies=[Depends(permission_required("role_delete"))])
 @inject
 async def delete_role(
     role_id: int,

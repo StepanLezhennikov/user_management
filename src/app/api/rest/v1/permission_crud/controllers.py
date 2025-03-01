@@ -8,6 +8,7 @@ from app.schemas.permission import (
     PermissionFilter,
     PermissionUpdate,
 )
+from app.services.services.permission import permission_required
 from app.api.exceptions.permission_service import (
     PermissionsNotFoundError,
     PermissionAlreadyExistsError,
@@ -17,7 +18,11 @@ from app.api.interfaces.services.permission import APermissionService
 router = APIRouter()
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/",
+    dependencies=[Depends(permission_required("permission_create"))],
+    status_code=status.HTTP_201_CREATED,
+)
 @inject
 async def create_permission(
     permission_create: PermissionCreate,
@@ -30,7 +35,7 @@ async def create_permission(
     return permission_create
 
 
-@router.get("/")
+@router.get("/", dependencies=[Depends(permission_required("permission_get"))])
 @inject
 async def get_permission(
     permission_filter: PermissionFilter = Query(None),
@@ -44,7 +49,7 @@ async def get_permission(
     return permissions
 
 
-@router.put("/")
+@router.put("/", dependencies=[Depends(permission_required("permission_update"))])
 @inject
 async def update_permission(
     permission_id: int,
@@ -61,7 +66,7 @@ async def update_permission(
     return updated_permission
 
 
-@router.delete("/")
+@router.delete("/", dependencies=[Depends(permission_required("permission_delete"))])
 @inject
 async def delete_permission(
     permission_id: int,
