@@ -1,7 +1,7 @@
 import pytest
 
 from app.schemas.user import User, UserForToken
-from app.api.exceptions.auth_service import UserNotFoundError
+from app.api.exceptions.user_service import UserNotFoundError
 from app.services.services.password_security import PasswordSecurityService
 from app.api.exceptions.password_security_service import IncorrectPasswordError
 

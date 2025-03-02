@@ -3,18 +3,18 @@ from logging import getLogger
 from sqlalchemy.exc import IntegrityError
 
 from app.schemas.user import User, UserCreate
-from app.api.exceptions.auth_service import (
+from app.api.exceptions.user_service import (
     InvalidRoleError,
     UserNotFoundError,
     UserIsAlreadyRegisteredError,
 )
 from app.services.interfaces.uow.uow import AUnitOfWork
-from app.api.interfaces.services.auth import AAuthService
+from app.api.interfaces.services.user import AUserService
 
 logger = getLogger(__name__)
 
 
-class AuthService(AAuthService):
+class UserService(AUserService):
     def __init__(self, uow: AUnitOfWork):
         self._uow = uow
 

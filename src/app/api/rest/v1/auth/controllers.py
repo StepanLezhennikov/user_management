@@ -12,13 +12,13 @@ from app.api.exceptions.jwt_service import (
     ExpiredSignatureException,
     InvalidSignatureException,
 )
-from app.api.exceptions.auth_service import (
+from app.api.exceptions.user_service import (
     InvalidRoleError,
     UserNotFoundError,
     UserIsAlreadyRegisteredError,
 )
 from app.api.interfaces.services.jwt import AJwtService
-from app.api.interfaces.services.auth import AAuthService
+from app.api.interfaces.services.user import AUserService
 from app.services.services.password_security import PasswordSecurityService
 from app.api.exceptions.password_security_service import IncorrectPasswordError
 
@@ -31,14 +31,14 @@ router = APIRouter()
 @inject
 async def sign_up(
     user_data: UserCreate,
-    auth_service: AAuthService = Depends(Provide["auth_service"]),
+    user_service: AUserService = Depends(Provide["user_service"]),
     password_security_service: PasswordSecurityService = Depends(
         Provide["password_security_service"]
     ),
 ) -> User:
     user_data.password = password_security_service.hash_password(user_data.password)
     try:
-        new_user = await auth_service.create(user_data)
+        new_user = await user_service.create(user_data)
     except UserIsAlreadyRegisteredError:
         raise HTTPException(status_code=409, detail="User is already registered")
     except InvalidRoleError:
@@ -67,12 +67,12 @@ async def sign_in(
 @inject
 async def get_tokens(
     user_email: EmailStr,
-    auth_service: AAuthService = Depends(Provide["auth_service"]),
+    user_service: AUserService = Depends(Provide["user_service"]),
     jwt_service: AJwtService = Depends(Provide["jwt_service"]),
 ) -> Token:
     try:
-        permissions = await auth_service.get_user_permissions(email=user_email)
-        user = await auth_service.get(email=user_email)
+        permissions = await user_service.get_user_permissions(email=user_email)
+        user = await user_service.get(email=user_email)
     except UserNotFoundError:
         raise HTTPException(status_code=404, detail="User not found")
 

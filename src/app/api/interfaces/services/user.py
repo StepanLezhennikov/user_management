@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from app.schemas.user import User, UserCreate
 
 
-class AAuthService(ABC):
+class AUserService(ABC):
     @abstractmethod
     async def create(self, user_data: UserCreate) -> User: ...
 

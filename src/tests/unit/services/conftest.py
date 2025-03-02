@@ -6,10 +6,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import Settings
 from app.schemas.user import UserSignIn
-from app.services.services.auth import AuthService
+from app.services.services.user import UserService
 from app.services.services.email import EmailService
 from app.services.interfaces.uow.uow import AUnitOfWork
-from app.api.interfaces.services.auth import AAuthService
+from app.api.interfaces.services.user import AUserService
 from app.services.services.permission import PermissionService
 from app.api.interfaces.services.email import AEmailService
 from app.api.interfaces.services.permission import APermissionService
@@ -23,8 +23,8 @@ from app.services.interfaces.repositories.code_verification_repository import (
 
 
 @pytest.fixture(scope="function")
-async def auth_service(uow: AUnitOfWork) -> AAuthService:
-    return AuthService(uow)
+async def user_service(uow: AUnitOfWork) -> AUserService:
+    return UserService(uow)
 
 
 @pytest.fixture(scope="function")

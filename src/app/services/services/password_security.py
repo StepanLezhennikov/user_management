@@ -1,7 +1,7 @@
 import bcrypt
 
 from app.schemas.user import UserSignIn
-from app.api.exceptions.auth_service import UserNotFoundError
+from app.api.exceptions.user_service import UserNotFoundError
 from app.services.interfaces.uow.uow import AUnitOfWork
 from app.api.exceptions.password_security_service import IncorrectPasswordError
 from app.api.interfaces.services.password_security import APasswordSecurityService
