@@ -2,29 +2,32 @@ from logging import getLogger
 
 from sqlalchemy.exc import IntegrityError
 
-from app.schemas.user import UserCreate
-from app.api.exceptions.auth_service import (
+from app.schemas.user import User, UserCreate
+from app.api.exceptions.user_service import (
+    InvalidRoleError,
     UserNotFoundError,
     UserIsAlreadyRegisteredError,
 )
 from app.services.interfaces.uow.uow import AUnitOfWork
-from app.api.interfaces.services.auth import AAuthService
+from app.api.interfaces.services.user import AUserService
 
 logger = getLogger(__name__)
 
 
-class AuthService(AAuthService):
+class UserService(AUserService):
     def __init__(self, uow: AUnitOfWork):
-        logger.info("Вызов AuthService __init__")
         self._uow = uow
 
-    async def create(self, user_data: UserCreate) -> UserCreate:
-        logger.info("Вызов AuthService register")
+    async def create(self, user_data: UserCreate) -> User:
         async with self._uow as uow:
             try:
-                new_user = await uow.users.create(user_data)
+                roles = await uow.roles.filter(user_data.roles)
+                roles_ids = [role.id for role in roles]
+                if user_data.roles and not roles_ids:
+                    raise InvalidRoleError()
+                new_user = await uow.users.create(user_data, roles_ids)
                 await uow.commit()
-                return new_user
+                return User.model_validate(new_user)
             except IntegrityError:
                 raise UserIsAlreadyRegisteredError()
 
@@ -35,12 +38,20 @@ class AuthService(AAuthService):
                 raise UserNotFoundError()
             return True
 
-    async def get_user_id(self, email: str) -> int:
+    async def get(self, **filters) -> User:
         async with self._uow as uow:
-            user = await uow.users.get(email=email)
+            user = await uow.users.get(**filters)
             if not user:
                 raise UserNotFoundError()
-            return user.id
+            return user
+
+    async def get_user_permissions(self, email: str) -> list[str]:
+        async with self._uow as uow:
+            permissions = await uow.users.get_permissions(email)
+            if permissions is None:
+                raise UserNotFoundError()
+
+        return permissions
 
     async def reset_password(self, user_id: int, hashed_password: str) -> bool:
         await self.check_user_exists(id=user_id)

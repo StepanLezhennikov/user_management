@@ -10,7 +10,8 @@ from pydantic import EmailStr
 from app.main import app
 from app.containers import Container
 from app.core.config import Settings
-from app.schemas.user import User, UserSignIn
+from app.schemas.user import User, UserForToken
+from app.schemas.permission import PermissionFilter
 from app.services.services.jwt import JwtService
 from app.schemas.code_verification import CodeVerification
 
@@ -80,18 +81,18 @@ def verify_code_url() -> str:
 
 
 @pytest.fixture
-def user_data() -> UserSignIn:
-    return UserSignIn(email="test@example.com", password="test_password")
+def user_data() -> UserForToken:
+    return UserForToken(email="test@example.com", password="test_password")
 
 
 @pytest.fixture
-def user_data_incorrect_password() -> UserSignIn:
-    return UserSignIn(email="test@example.com", password="incorrect_password")
+def user_data_incorrect_password() -> UserForToken:
+    return UserForToken(email="test@example.com", password="incorrect_password")
 
 
 @pytest.fixture
-def refresh_token(user_data: UserSignIn, jwt_service: JwtService) -> str:
-    return jwt_service.create_refresh_token(user_data.model_dump())
+def refresh_token(user_for_token: UserForToken, jwt_service: JwtService) -> str:
+    return jwt_service.create_refresh_token(user_for_token.model_dump())
 
 
 @pytest.fixture
@@ -128,3 +129,18 @@ def reset_token_expired(
 @pytest.fixture
 def reset_token_invalid(reset_token: str) -> str:
     return reset_token[:-5] + "abcde"
+
+
+@pytest.fixture
+def permission_filter() -> PermissionFilter:
+    return PermissionFilter(name="test_permission", description="test_permission")
+
+
+@pytest.fixture
+def crud_permission_url() -> str:
+    return "/v1/permissions/"
+
+
+@pytest.fixture
+def crud_role_url() -> str:
+    return "/v1/roles/"

@@ -4,3 +4,7 @@ class UserIsAlreadyRegisteredError(Exception):
 
 class UserNotFoundError(Exception):
     pass
+
+
+class InvalidRoleError(Exception):
+    pass

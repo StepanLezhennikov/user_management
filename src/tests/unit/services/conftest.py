@@ -5,13 +5,13 @@ import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import Settings
-from app.schemas.user import UserSignIn
-from app.services.services.jwt import JwtService
-from app.services.services.auth import AuthService
+from app.services.services.user import UserService
 from app.services.services.email import EmailService
 from app.services.interfaces.uow.uow import AUnitOfWork
-from app.api.interfaces.services.auth import AAuthService
+from app.api.interfaces.services.user import AUserService
+from app.services.services.permission import PermissionService
 from app.api.interfaces.services.email import AEmailService
+from app.api.interfaces.services.permission import APermissionService
 from app.services.services.code_verification import CodeVerificationService
 from app.infra.repositories.code_verification import CodeVerificationRepository
 from app.services.interfaces.clients.aws.email import AEmailClient
@@ -22,8 +22,13 @@ from app.services.interfaces.repositories.code_verification_repository import (
 
 
 @pytest.fixture(scope="function")
-async def auth_service(uow: AUnitOfWork) -> AAuthService:
-    return AuthService(uow)
+async def user_service(uow: AUnitOfWork) -> AUserService:
+    return UserService(uow)
+
+
+@pytest.fixture(scope="function")
+async def permission_service(uow: AUnitOfWork) -> APermissionService:
+    return PermissionService(uow)
 
 
 @pytest.fixture
@@ -39,16 +44,6 @@ def code_verification_service(code_verification_repo) -> ACodeVerificationServic
 @pytest.fixture
 def email_service(email_client: AEmailClient) -> AEmailService:
     return EmailService(email_client)
-
-
-@pytest.fixture
-def user_sign_in() -> UserSignIn:
-    return UserSignIn(email="test@example.com", password="test_password")
-
-
-@pytest.fixture
-def created_access_token(jwt_service: JwtService, user_sign_in: UserSignIn) -> str:
-    return jwt_service.create_access_token(user_sign_in.model_dump())
 
 
 @pytest.fixture

@@ -1,6 +1,6 @@
 import os
 from typing import Any
-from dataclasses import dataclass
+from dataclasses import field, dataclass
 
 from dotenv import load_dotenv
 from pydantic import BaseModel, PostgresDsn
@@ -18,6 +18,23 @@ class Constants:
     subject_for_password_reset_email: str = "Смена пароля"
     message_for_password_reset_email: str = (
         "Чтобы сменить пароль перейдите по ссылке http://0.0.0.0:8001/v1/password_reset/?token={password_token}"
+    )
+
+    PERMISSIONS: dict[str, str] = field(
+        default_factory=lambda: {
+            "role_create": "user can create roles",
+            "role_update": "user can update roles",
+            "role_delete": "user can delete roles",
+            "role_get": "user can get roles",
+            "user_create": "user can create users",
+            "user_update": "user can update users",
+            "user_delete": "user can delete users",
+            "user_get": "user can get users",
+            "permission_create": "user can create permissions",
+            "permission_update": "user can update permissions",
+            "permission_delete": "user can delete permissions",
+            "permission_get": "user can get permissions",
+        }
     )
 
 

@@ -1,7 +1,5 @@
 from abc import ABC, abstractmethod
 
-from app.schemas.user import User
-
 
 class AJwtService(ABC):
     @abstractmethod
@@ -15,6 +13,3 @@ class AJwtService(ABC):
 
     @abstractmethod
     def decode_token(self, token: str) -> dict: ...
-
-    @abstractmethod
-    async def get_current_user(self, token: str) -> User: ...
