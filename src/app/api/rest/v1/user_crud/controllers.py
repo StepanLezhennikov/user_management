@@ -2,7 +2,14 @@ from fastapi import Query, Depends, APIRouter, HTTPException
 from starlette import status
 from dependency_injector.wiring import Provide, inject
 
-from app.schemas.user import User, UserCreate
+from app.schemas.user import (
+    User,
+    UserCreate,
+    UserUpdate,
+    DeletedUser,
+    UserAuthenticated,
+)
+from app.services.services.jwt import get_current_user
 from app.api.exceptions.user_service import (
     UserNotFoundError,
     UserIsAlreadyRegisteredError,
@@ -47,31 +54,30 @@ async def get_users(
     return users
 
 
-#
-# @router.put("/", dependencies=[Depends(permission_required("role_update"))])
-# @inject
-# async def update_role(
-#     role_id: int,
-#     role_update: RoleUpdate,
-#     role_service: ARoleService = Depends(Provide["role_service"]),
-# ) -> Role:
-#     try:
-#         updated_role = await role_service.update(role_id, role_update)
-#     except RoleNotFoundError:
-#         raise HTTPException(status_code=404, detail="Role not found")
-#
-#     return updated_role
-#
-#
-# @router.delete("/", dependencies=[Depends(permission_required("role_delete"))])
-# @inject
-# async def delete_role(
-#     role_id: int,
-#     role_service: ARoleService = Depends(Provide["role_service"]),
-# ) -> Role:
-#     try:
-#         deleted_role = await role_service.delete(role_id)
-#     except RoleNotFoundError:
-#         raise HTTPException(status_code=404, detail="Role not found")
-#
-#     return deleted_role
+@router.put("/")
+@inject
+async def update_me(
+    user_update: UserUpdate,
+    current_user: UserAuthenticated = Depends(get_current_user),
+    user_service: AUserService = Depends(Provide["user_service"]),
+) -> User:
+    try:
+        updated_user = await user_service.update(current_user.id, user_update)
+    except UserNotFoundError:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return updated_user
+
+
+@router.delete("/")
+@inject
+async def delete_me(
+    current_user: UserAuthenticated = Depends(get_current_user),
+    user_service: AUserService = Depends(Provide["user_service"]),
+) -> DeletedUser:
+    try:
+        deleted_user = await user_service.delete(current_user.id)
+    except UserNotFoundError:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return deleted_user

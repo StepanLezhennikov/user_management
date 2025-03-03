@@ -3,7 +3,7 @@ from starlette import status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.schemas.user import User, UserCreate
+from app.schemas.user import User, UserCreate, UserUpdate
 from app.infra.repositories.models.user_model import User as UserModel
 
 
@@ -56,3 +56,46 @@ async def test_get_users(
     users = response.json()
     assert response.status_code == status.HTTP_200_OK
     assert len(users) == 11
+
+
+async def test_update_me(
+    http_client: AsyncClient,
+    crud_user_url: str,
+    created_access_token: str,
+    user_update: UserUpdate,
+    session: AsyncSession,
+) -> None:
+
+    response = await http_client.put(
+        crud_user_url,
+        json=user_update.model_dump(),
+        headers={"Authorization": f"Bearer {created_access_token}"},
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+
+    query = select(UserModel).where(UserModel.id == 1)
+    result = await session.execute(query)
+    user = result.scalars().first()
+    assert user.username == user_update.username
+    assert user.email == user_update.email
+
+
+async def test_delete_me(
+    http_client: AsyncClient,
+    crud_user_url: str,
+    created_access_token: str,
+    session: AsyncSession,
+) -> None:
+
+    response = await http_client.delete(
+        crud_user_url,
+        headers={"Authorization": f"Bearer {created_access_token}"},
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+
+    query = select(UserModel).where(UserModel.id == 1)
+    result = await session.execute(query)
+    user = result.scalars().first()
+    assert not user

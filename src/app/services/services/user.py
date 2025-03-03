@@ -2,7 +2,7 @@ from logging import getLogger
 
 from sqlalchemy.exc import IntegrityError
 
-from app.schemas.user import User, UserCreate
+from app.schemas.user import User, UserCreate, UserUpdate, DeletedUser
 from app.api.exceptions.user_service import (
     InvalidRoleError,
     UserNotFoundError,
@@ -63,6 +63,11 @@ class UserService(AUserService):
 
         return permissions
 
+    async def update(self, user_id: int, user_update: UserUpdate) -> User:
+        async with self._uow as uow:
+            updated_user = await uow.users.update(user_id, **user_update.model_dump())
+            return User.model_validate(updated_user)
+
     async def reset_password(self, user_id: int, hashed_password: str) -> bool:
         await self.check_user_exists(id=user_id)
         async with self._uow as uow:
@@ -70,3 +75,10 @@ class UserService(AUserService):
                 user_id=user_id, new_hashed_password=hashed_password
             )
         return True
+
+    async def delete(self, user_id: int) -> DeletedUser:
+        async with self._uow as uow:
+            deleted_user = await uow.users.delete(user_id)
+            if deleted_user is None:
+                raise UserNotFoundError()
+            return deleted_user

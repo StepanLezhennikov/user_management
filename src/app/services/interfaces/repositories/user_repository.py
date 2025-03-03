@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from app.schemas.user import User, UserCreate
+from app.schemas.user import User, UserCreate, DeletedUser
 
 
 class AUserRepository(ABC):
@@ -21,5 +21,13 @@ class AUserRepository(ABC):
         pass
 
     @abstractmethod
+    async def update(self, user_id: int, **values) -> User | None:
+        pass
+
+    @abstractmethod
     async def update_password(self, user_id: int, new_hashed_password: str) -> str:
+        pass
+
+    @abstractmethod
+    async def delete(self, user_id: int) -> DeletedUser | None:
         pass
