@@ -144,3 +144,8 @@ def crud_permission_url() -> str:
 @pytest.fixture
 def crud_role_url() -> str:
     return "/v1/roles/"
+
+
+@pytest.fixture
+def crud_user_url() -> str:
+    return "/v1/users/"

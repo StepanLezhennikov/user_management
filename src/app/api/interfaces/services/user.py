@@ -14,6 +14,9 @@ class AUserService(ABC):
     async def get(self, **filters) -> User: ...
 
     @abstractmethod
+    async def get_all(self, limit: int, offset: int, **filters) -> list[User]: ...
+
+    @abstractmethod
     async def get_user_permissions(self, email: str) -> list[str] | None: ...
 
     @abstractmethod

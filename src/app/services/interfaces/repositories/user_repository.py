@@ -13,6 +13,10 @@ class AUserRepository(ABC):
         pass
 
     @abstractmethod
+    async def get_all(self, limit: int, offset: int, **filters) -> list[User]:
+        pass
+
+    @abstractmethod
     async def get_permissions(self, email: str) -> list[str] | None:
         pass
 

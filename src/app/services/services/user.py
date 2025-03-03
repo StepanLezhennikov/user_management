@@ -23,11 +23,14 @@ class UserService(AUserService):
             try:
                 roles = await uow.roles.filter(user_data.roles)
                 roles_ids = [role.id for role in roles]
+
                 if user_data.roles and not roles_ids:
                     raise InvalidRoleError()
+
                 new_user = await uow.users.create(user_data, roles_ids)
                 await uow.commit()
                 return User.model_validate(new_user)
+
             except IntegrityError:
                 raise UserIsAlreadyRegisteredError()
 
@@ -44,6 +47,13 @@ class UserService(AUserService):
             if not user:
                 raise UserNotFoundError()
             return user
+
+    async def get_all(self, limit: int = 10, offset: int = 0, **filters) -> list[User]:
+        async with self._uow as uow:
+            users = await uow.users.get_all(limit, offset, **filters)
+            if not users:
+                raise UserNotFoundError()
+            return users
 
     async def get_user_permissions(self, email: str) -> list[str]:
         async with self._uow as uow:

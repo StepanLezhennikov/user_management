@@ -189,6 +189,38 @@ async def created_user(
 
 
 @pytest.fixture
+async def created_users(
+    session: AsyncSession,
+    user_create: UserCreate,
+    password_security_service: PasswordSecurityService,
+    created_role_admin: RoleCreate,
+) -> list[User]:
+    users = []
+    for i in range(1, 11):
+        added_user = UserModel(
+            username=user_create.username + str(i),
+            email="test{}@example.com".format(i),
+            first_name=user_create.first_name,
+            last_name=user_create.last_name,
+            hashed_password=password_security_service.hash_password(
+                user_create.password
+            ),
+        )
+
+        query = select(Role).where(Role.role == created_role_admin.role)
+        result = await session.execute(query)
+        role = result.scalar_one_or_none()
+
+        added_user.roles = [role]
+        users.append(added_user)
+
+    session.add_all(users)
+    await session.flush()
+    await session.commit()
+    return list(users)
+
+
+@pytest.fixture
 async def created_role_admin(
     session: AsyncSession,
     role_create_admin: RoleCreate,

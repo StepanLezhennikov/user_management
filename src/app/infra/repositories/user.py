@@ -37,6 +37,14 @@ class UserRepository(AUserRepository):
         user = result.scalars().first()
         return User.model_validate(user) if user else None
 
+    async def get_all(self, limit: int, offset: int, **filters) -> list[User] | None:
+        query = select(UserModel).filter_by(**filters).limit(limit).offset(offset)
+        result = await self._session.execute(query)
+        users_raw = result.scalars().unique().all()
+
+        users = list(map(User.model_validate, users_raw))
+        return users if users else None
+
     async def get_permissions(self, email: str) -> list[str] | None:
         query = (
             select(UserModel)
