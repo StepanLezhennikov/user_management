@@ -1,11 +1,10 @@
 from httpx import AsyncClient
-from pydantic import EmailStr
 from starlette import status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.schemas.role import RoleCreate
-from app.schemas.user import User, UserCreate
+from app.schemas.user import User, UserCreate, UserSignIn
 from app.schemas.permission import PermissionCreate
 from app.services.services.jwt import JwtService
 from app.infra.repositories.models.user_model import User as UserModel
@@ -52,13 +51,13 @@ async def test_sign_up_already_registered(
 
 async def test_get_tokens(
     http_client: AsyncClient,
-    email: EmailStr,
+    user_sign_in: UserSignIn,
     created_user: User,
     get_tokens_url: str,
     jwt_service: JwtService,
     permission_create_list: list[PermissionCreate],
 ) -> None:
-    tokens = await http_client.get(get_tokens_url, params={"user_email": email})
+    tokens = await http_client.post(get_tokens_url, json=user_sign_in.model_dump())
 
     assert tokens.status_code == status.HTTP_200_OK
     access_token = tokens.json().get("access_token")
@@ -74,15 +73,15 @@ async def test_get_tokens(
 async def test_get_tokens_user_not_found(
     http_client: AsyncClient,
     get_tokens_url: str,
-    created_user: User,
+    user_sign_in: UserSignIn,
     jwt_service: JwtService,
 ) -> None:
-    created_user.email = "wronf_email@example.com"
-    tokens = await http_client.get(
+    user_sign_in.email = "wrong_email@example.com"
+    response = await http_client.post(
         get_tokens_url,
-        params={"user_email": created_user.email},
+        json=user_sign_in.model_dump(),
     )
-    assert tokens.status_code == status.HTTP_404_NOT_FOUND
+    assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
 async def test_refresh_access_token(

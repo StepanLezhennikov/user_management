@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
 
-from app.schemas.user import UserForToken
+from app.schemas.user import UserSignIn
 
 
 class APasswordSecurityService(ABC):
     @abstractmethod
-    async def verify_password(self, user_data: UserForToken) -> bool:
+    async def verify_password(self, user_data: UserSignIn) -> bool:
         pass
 
     @abstractmethod

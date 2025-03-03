@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.schemas.role import Role, RoleCreate, RoleUpdate
 from app.infra.repositories.role import RoleRepository
 from app.infra.repositories.models.user_model import Role as RoleModel
-from app.infra.repositories.models.user_model import role_permission
+from app.infra.repositories.models.user_model import RolePermission
 
 
 async def test_create_role(
@@ -70,8 +70,8 @@ async def test_delete_role(
     result = await session.execute(query)
     role = result.scalar_one_or_none()
 
-    delete_permissions_query = select(role_permission).where(
-        role_permission.c.role_id == 1
+    delete_permissions_query = select(RolePermission).where(
+        RolePermission.c.role_id == 1
     )
     result = await session.execute(delete_permissions_query)
 

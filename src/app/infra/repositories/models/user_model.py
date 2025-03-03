@@ -5,7 +5,7 @@ from sqlalchemy.orm import Mapped, relationship, mapped_column
 
 from app.db.base import Base
 
-role_permission = Table(
+RolePermission = Table(
     "role_permission",
     Base.metadata,
     Column("role_id", ForeignKey("roles.id"), primary_key=True),
@@ -26,9 +26,7 @@ class Permission(Base):
     created_at: Mapped[datetime] = mapped_column(default=datetime.now)
     updated_at: Mapped[datetime] = mapped_column(default=datetime.now)
 
-    roles = relationship(
-        "Role", secondary=role_permission, back_populates="permissions"
-    )
+    roles = relationship("Role", secondary=RolePermission, back_populates="permissions")
 
 
 class Role(Base):
@@ -40,12 +38,12 @@ class Role(Base):
     updated_at: Mapped[datetime] = mapped_column(default=datetime.now)
 
     permissions = relationship(
-        "Permission", secondary=role_permission, back_populates="roles"
+        "Permission", secondary=RolePermission, back_populates="roles"
     )
     users = relationship("User", secondary="user_role", back_populates="roles")
 
 
-user_role = Table(
+UserRole = Table(
     "user_role",
     Base.metadata,
     Column("user_id", ForeignKey("users.id"), primary_key=True),
@@ -69,5 +67,5 @@ class User(Base):
     updated_at: Mapped[datetime] = mapped_column(default=datetime.now)
 
     roles = relationship(
-        "Role", secondary=user_role, back_populates="users", lazy="joined"
+        "Role", secondary=UserRole, back_populates="users", lazy="joined"
     )

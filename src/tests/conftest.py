@@ -18,7 +18,7 @@ from app.db.sqla import SqlAlchemyDatabase
 from app.db.redis import redis_db
 from app.core.config import Settings, Constants
 from app.schemas.role import RoleCreate, RoleUpdate
-from app.schemas.user import User, UserCreate, UserForToken
+from app.schemas.user import User, UserCreate, UserSignIn, UserForToken
 from app.infra.uow.uow import Uow
 from tests.alembic.utils import drop_database, create_database, apply_migrations
 from app.schemas.permission import Permission, PermissionCreate, PermissionUpdate
@@ -341,3 +341,8 @@ def user_for_token(
 @pytest.fixture
 def created_access_token(jwt_service: JwtService, user_for_token: UserForToken) -> str:
     return jwt_service.create_access_token(user_for_token.model_dump())
+
+
+@pytest.fixture
+def user_sign_in() -> UserSignIn:
+    return UserSignIn(email="test@example.com", password="test_password")

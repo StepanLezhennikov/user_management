@@ -5,7 +5,6 @@ import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import Settings
-from app.schemas.user import UserSignIn
 from app.services.services.user import UserService
 from app.services.services.email import EmailService
 from app.services.interfaces.uow.uow import AUnitOfWork
@@ -45,11 +44,6 @@ def code_verification_service(code_verification_repo) -> ACodeVerificationServic
 @pytest.fixture
 def email_service(email_client: AEmailClient) -> AEmailService:
     return EmailService(email_client)
-
-
-@pytest.fixture
-def user_sign_in() -> UserSignIn:
-    return UserSignIn(email="test@example.com", password="test_password")
 
 
 @pytest.fixture
