@@ -61,7 +61,7 @@ async def get_tokens(
 ) -> Token:
     try:
         await password_security_service.verify_password(user_data)
-        permissions = await user_service.get_user_permissions(email=user_data.email)
+        permissions = await user_service.get_permissions(email=user_data.email)
         user = await user_service.get(email=user_data.email)
     except (IncorrectPasswordError, UserNotFoundError):
         raise HTTPException(

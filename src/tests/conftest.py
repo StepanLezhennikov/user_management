@@ -216,7 +216,6 @@ async def created_users(
 
     session.add_all(users)
     await session.flush()
-    await session.commit()
     return list(users)
 
 

@@ -55,7 +55,7 @@ class UserService(AUserService):
                 raise UserNotFoundError()
             return users
 
-    async def get_user_permissions(self, email: str) -> list[str]:
+    async def get_permissions(self, email: str) -> list[str]:
         async with self._uow as uow:
             permissions = await uow.users.get_permissions(email)
             if permissions is None:
