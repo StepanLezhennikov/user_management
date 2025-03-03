@@ -2,6 +2,7 @@ from logging import getLogger
 
 from fastapi import Depends, APIRouter, HTTPException
 from pydantic import EmailStr
+from starlette import status
 from dependency_injector.wiring import Provide, inject
 
 from app.schemas.response import CustomResponse
@@ -30,7 +31,9 @@ async def send_code(
     try:
         await user_service.check_user_exists(email=str(user_email))
     except UserNotFoundError:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
     code = code_verification_service.generate_code()
     await email_service.send_code(user_email, code)
     code_verification_service.create(user_email, code)
@@ -49,4 +52,4 @@ async def verify_code(
         code_verification_service.verify_code(code_ver.email, code_ver.code)
         return CustomResponse(message="Code is valid")
     except CodeIsExpiredError:
-        raise HTTPException(status_code=410, detail="Code is expired")
+        raise HTTPException(status_code=status.HTTP_410_GONE, detail="Code is expired")

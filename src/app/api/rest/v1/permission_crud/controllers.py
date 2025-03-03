@@ -31,7 +31,9 @@ async def create_permission(
     try:
         await permission_service.create(permission_create)
     except PermissionAlreadyExistsError:
-        raise HTTPException(status_code=409, detail="Permission already exists")
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="Permission already exists"
+        )
     return permission_create
 
 
@@ -44,7 +46,9 @@ async def get_permission(
     try:
         permissions = await permission_service.get(**(permission_filter.model_dump()))
     except PermissionsNotFoundError:
-        raise HTTPException(status_code=404, detail="Permissions not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Permissions not found"
+        )
 
     return permissions
 
@@ -61,7 +65,9 @@ async def update_permission(
             permission_id, permission_update
         )
     except PermissionsNotFoundError:
-        raise HTTPException(status_code=404, detail="Permissions not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Permissions not found"
+        )
 
     return updated_permission
 
@@ -75,6 +81,8 @@ async def delete_permission(
     try:
         deleted_permission = await permission_service.delete(permission_id)
     except PermissionsNotFoundError:
-        raise HTTPException(status_code=404, detail="Permissions not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Permissions not found"
+        )
 
     return deleted_permission

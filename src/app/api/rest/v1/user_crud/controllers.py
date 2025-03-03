@@ -33,7 +33,9 @@ async def create_user(
     try:
         created_user = await user_service.create(user_create)
     except UserIsAlreadyRegisteredError:
-        raise HTTPException(status_code=409, detail="User already exists")
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="User already exists"
+        )
     return created_user
 
 
@@ -50,7 +52,9 @@ async def get_users(
     try:
         users = await user_service.get_all(limit=limit, offset=offset)
     except UserNotFoundError:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
     return users
 
 
@@ -64,7 +68,9 @@ async def update_me(
     try:
         updated_user = await user_service.update(current_user.id, user_update)
     except UserNotFoundError:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
 
     return updated_user
 
@@ -78,6 +84,8 @@ async def delete_me(
     try:
         deleted_user = await user_service.delete(current_user.id)
     except UserNotFoundError:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
 
     return deleted_user

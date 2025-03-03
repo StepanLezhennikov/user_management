@@ -38,9 +38,13 @@ async def sign_up(
     try:
         new_user = await user_service.create(user_data)
     except UserIsAlreadyRegisteredError:
-        raise HTTPException(status_code=409, detail="User is already registered")
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="User is already registered"
+        )
     except InvalidRoleError:
-        raise HTTPException(status_code=403, detail="Invalid role")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Invalid role"
+        )
 
     return new_user
 
@@ -60,7 +64,9 @@ async def get_tokens(
         permissions = await user_service.get_user_permissions(email=user_data.email)
         user = await user_service.get(email=user_data.email)
     except (IncorrectPasswordError, UserNotFoundError):
-        raise HTTPException(status_code=403, detail="Invalid password or email")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Invalid password or email"
+        )
 
     user_for_token = UserForToken(id=user.id, permissions=permissions)
 
@@ -77,9 +83,13 @@ async def refresh_access_token(
     try:
         payload = jwt_service.decode_token(refresh_token)
     except ExpiredSignatureException:
-        raise HTTPException(status_code=401, detail="Expired refresh token")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Expired refresh token"
+        )
     except InvalidSignatureException:
-        raise HTTPException(status_code=401, detail="Invalid refresh token")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token"
+        )
 
     new_access_token = jwt_service.create_access_token(payload)
     new_refresh_token = jwt_service.create_refresh_token(payload)
