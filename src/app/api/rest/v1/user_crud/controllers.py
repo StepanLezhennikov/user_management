@@ -51,7 +51,6 @@ async def get_users(
     sort_order: SortOrder = Query("asc"),
     user_service: AUserService = Depends(Provide["user_service"]),
 ) -> list[User]:
-    print("ЗАПРОС ОТ КОРА ПРИНЯТ")
     try:
         users = await user_service.get_all(
             sort_by=sort_by,
@@ -67,7 +66,7 @@ async def get_users(
     return users
 
 
-@router.put("/")
+@router.put("/me/")
 @inject
 async def update_me(
     user_update: UserUpdate,
@@ -84,7 +83,7 @@ async def update_me(
     return updated_user
 
 
-@router.delete("/")
+@router.delete("/me/")
 @inject
 async def delete_me(
     current_user: UserAuthenticated = Depends(get_current_user),
