@@ -46,3 +46,11 @@ class UserSignIn(BaseModel):
 
 class UserUpdate(UserBase):
     pass
+
+
+class UserFilter(BaseModel):
+    username: str | None = None
+    email: EmailStr | None = None
+    first_name: str | None = None
+    last_name: str | None = None
+    is_blocked: bool | None = None

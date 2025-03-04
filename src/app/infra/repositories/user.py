@@ -1,8 +1,9 @@
-from sqlalchemy import delete, select, update
+from sqlalchemy import asc, desc, delete, select, update
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.schemas.user import User, UserCreate, DeletedUser
+from app.schemas.sort_filter import SortBy, SortOrder
 from app.infra.repositories.models.user_model import Role
 from app.infra.repositories.models.user_model import User as UserModel
 from app.infra.repositories.models.user_model import UserRole
@@ -38,8 +39,27 @@ class UserRepository(AUserRepository):
         user = result.scalars().first()
         return User.model_validate(user) if user else None
 
-    async def get_all(self, limit: int, offset: int, **filters) -> list[User] | None:
-        query = select(UserModel).filter_by(**filters).limit(limit).offset(offset)
+    async def get_all(
+        self, sort_by: SortBy, sort_order: SortOrder, limit: int, offset: int, **filters
+    ) -> list[User] | None:
+
+        if sort_order == "desc":
+            order_func = desc
+        else:
+            order_func = asc
+
+        filters_without_none = {
+            key: value for key, value in filters.items() if value is not None
+        }
+
+        query = (
+            select(UserModel)
+            .limit(limit)
+            .offset(offset)
+            .order_by(order_func(getattr(UserModel, sort_by)))
+            .filter_by(**filters_without_none)
+        )
+
         result = await self._session.execute(query)
         users_raw = result.scalars().unique().all()
 

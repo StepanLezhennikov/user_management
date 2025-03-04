@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 
 from app.schemas.user import User, UserCreate, DeletedUser
+from app.schemas.sort_filter import SortBy, SortOrder
 
 
 class AUserRepository(ABC):
@@ -13,7 +14,9 @@ class AUserRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_all(self, limit: int, offset: int, **filters) -> list[User]:
+    async def get_all(
+        self, sort_by: SortBy, sort_order: SortOrder, limit: int, offset: int, **filters
+    ) -> list[User]:
         pass
 
     @abstractmethod

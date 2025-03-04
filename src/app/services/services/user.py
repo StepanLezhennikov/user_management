@@ -3,6 +3,7 @@ from logging import getLogger
 from sqlalchemy.exc import IntegrityError
 
 from app.schemas.user import User, UserCreate, UserUpdate, DeletedUser
+from app.schemas.sort_filter import SortBy, SortOrder
 from app.api.exceptions.user_service import (
     InvalidRoleError,
     UserNotFoundError,
@@ -48,9 +49,18 @@ class UserService(AUserService):
                 raise UserNotFoundError()
             return user
 
-    async def get_all(self, limit: int = 10, offset: int = 0, **filters) -> list[User]:
+    async def get_all(
+        self,
+        sort_by: SortBy,
+        sort_order: SortOrder,
+        limit: int = 10,
+        offset: int = 0,
+        **filters
+    ) -> list[User]:
         async with self._uow as uow:
-            users = await uow.users.get_all(limit, offset, **filters)
+            users = await uow.users.get_all(
+                sort_by, sort_order, limit, offset, **filters
+            )
             if not users:
                 raise UserNotFoundError()
             return users

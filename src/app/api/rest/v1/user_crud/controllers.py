@@ -5,10 +5,12 @@ from dependency_injector.wiring import Provide, inject
 from app.schemas.user import (
     User,
     UserCreate,
+    UserFilter,
     UserUpdate,
     DeletedUser,
     UserAuthenticated,
 )
+from app.schemas.sort_filter import SortBy, SortOrder
 from app.services.services.jwt import get_current_user
 from app.api.exceptions.user_service import (
     UserNotFoundError,
@@ -45,12 +47,21 @@ async def create_user(
 )
 @inject
 async def get_users(
+    user_filter: UserFilter = Depends(),
     limit: int = Query(10, ge=1, le=100),
     offset: int = Query(0, ge=0),
+    sort_by: SortBy = Query("created_at"),
+    sort_order: SortOrder = Query("asc"),
     user_service: AUserService = Depends(Provide["user_service"]),
 ) -> list[User]:
     try:
-        users = await user_service.get_all(limit=limit, offset=offset)
+        users = await user_service.get_all(
+            sort_by=sort_by,
+            sort_order=sort_order,
+            limit=limit,
+            offset=offset,
+            **user_filter.model_dump()
+        )
     except UserNotFoundError:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
