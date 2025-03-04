@@ -152,6 +152,11 @@ def crud_user_url() -> str:
 
 
 @pytest.fixture
+def crud_user_url_me() -> str:
+    return "/v1/users/me/"
+
+
+@pytest.fixture
 def user_update() -> UserUpdate:
     return UserUpdate(
         email="new_email@example.com",

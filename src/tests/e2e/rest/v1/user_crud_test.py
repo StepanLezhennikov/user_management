@@ -60,14 +60,14 @@ async def test_get_users(
 
 async def test_update_me(
     http_client: AsyncClient,
-    crud_user_url: str,
+    crud_user_url_me: str,
     created_access_token: str,
     user_update: UserUpdate,
     session: AsyncSession,
 ) -> None:
 
     response = await http_client.put(
-        crud_user_url,
+        crud_user_url_me,
         json=user_update.model_dump(),
         headers={"Authorization": f"Bearer {created_access_token}"},
     )
@@ -83,13 +83,13 @@ async def test_update_me(
 
 async def test_delete_me(
     http_client: AsyncClient,
-    crud_user_url: str,
+    crud_user_url_me: str,
     created_access_token: str,
     session: AsyncSession,
 ) -> None:
 
     response = await http_client.delete(
-        crud_user_url,
+        crud_user_url_me,
         headers={"Authorization": f"Bearer {created_access_token}"},
     )
 
