@@ -41,10 +41,7 @@ async def create_user(
     return created_user
 
 
-@router.get(
-    "/",
-    dependencies=[Depends(permission_required("user_get"))],
-)
+@router.get("/")
 @inject
 async def get_users(
     user_filter: UserFilter = Depends(),
@@ -54,6 +51,7 @@ async def get_users(
     sort_order: SortOrder = Query("asc"),
     user_service: AUserService = Depends(Provide["user_service"]),
 ) -> list[User]:
+    print("ЗАПРОС ОТ КОРА ПРИНЯТ")
     try:
         users = await user_service.get_all(
             sort_by=sort_by,

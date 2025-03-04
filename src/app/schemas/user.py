@@ -49,6 +49,7 @@ class UserUpdate(UserBase):
 
 
 class UserFilter(BaseModel):
+    id: int | None = None
     username: str | None = None
     email: EmailStr | None = None
     first_name: str | None = None
