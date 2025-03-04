@@ -43,7 +43,7 @@ class UserRepository(AUserRepository):
         self, sort_by: SortBy, sort_order: SortOrder, limit: int, offset: int, **filters
     ) -> list[User] | None:
 
-        if sort_order == "desc":
+        if sort_order == SortOrder.desc:
             order_func = desc
         else:
             order_func = asc
