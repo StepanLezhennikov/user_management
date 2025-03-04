@@ -10,7 +10,7 @@ from pydantic import EmailStr
 from app.main import app
 from app.containers import Container
 from app.core.config import Settings
-from app.schemas.user import User, UserForToken
+from app.schemas.user import User, UserUpdate, UserForToken
 from app.schemas.permission import PermissionFilter
 from app.services.services.jwt import JwtService
 from app.schemas.code_verification import CodeVerification
@@ -144,3 +144,23 @@ def crud_permission_url() -> str:
 @pytest.fixture
 def crud_role_url() -> str:
     return "/v1/roles/"
+
+
+@pytest.fixture
+def crud_user_url() -> str:
+    return "/v1/users/"
+
+
+@pytest.fixture
+def crud_user_url_me() -> str:
+    return "/v1/users/me/"
+
+
+@pytest.fixture
+def user_update() -> UserUpdate:
+    return UserUpdate(
+        email="new_email@example.com",
+        first_name="new_first_name",
+        last_name="new_last_name",
+        username="new_username",
+    )

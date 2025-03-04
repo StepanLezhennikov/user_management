@@ -1,10 +1,12 @@
-from sqlalchemy import select, update
+from sqlalchemy import asc, desc, delete, select, update
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.schemas.user import User, UserCreate
+from app.schemas.user import User, UserCreate, DeletedUser
+from app.schemas.sort_filter import SortBy, SortOrder
 from app.infra.repositories.models.user_model import Role
 from app.infra.repositories.models.user_model import User as UserModel
+from app.infra.repositories.models.user_model import UserRole
 from app.services.interfaces.repositories.user_repository import AUserRepository
 
 
@@ -37,6 +39,33 @@ class UserRepository(AUserRepository):
         user = result.scalars().first()
         return User.model_validate(user) if user else None
 
+    async def get_all(
+        self, sort_by: SortBy, sort_order: SortOrder, limit: int, offset: int, **filters
+    ) -> list[User] | None:
+
+        if sort_order == SortOrder.desc:
+            order_func = desc
+        else:
+            order_func = asc
+
+        filters_without_none = {
+            key: value for key, value in filters.items() if value is not None
+        }
+
+        query = (
+            select(UserModel)
+            .limit(limit)
+            .offset(offset)
+            .order_by(order_func(getattr(UserModel, sort_by)))
+            .filter_by(**filters_without_none)
+        )
+
+        result = await self._session.execute(query)
+        users_raw = result.scalars().unique().all()
+
+        users = list(map(User.model_validate, users_raw))
+        return users if users else None
+
     async def get_permissions(self, email: str) -> list[str] | None:
         query = (
             select(UserModel)
@@ -53,6 +82,22 @@ class UserRepository(AUserRepository):
 
         return list(permissions)
 
+    async def update(self, user_id: int, **values) -> User | None:
+        stmt = (
+            update(UserModel)
+            .where(UserModel.id == user_id)
+            .values(**values)
+            .returning(UserModel)
+        )
+        result = await self._session.execute(stmt)
+
+        user = result.scalars().first()
+
+        if user:
+            await self._session.refresh(user, attribute_names=["roles"])
+            return User.model_validate(user)
+        return None
+
     async def update_password(self, user_id: int, new_hashed_password: str) -> str:
         query = (
             update(UserModel)
@@ -61,3 +106,13 @@ class UserRepository(AUserRepository):
         )
         await self._session.execute(query)
         return new_hashed_password
+
+    async def delete(self, user_id: int) -> DeletedUser | None:
+        delete_user_roles_query = delete(UserRole).where(UserRole.c.user_id == user_id)
+        await self._session.execute(delete_user_roles_query)
+
+        query = delete(UserModel).where(UserModel.id == user_id).returning(UserModel)
+        result = await self._session.execute(query)
+        user = result.scalars().first()
+
+        return DeletedUser.model_validate(user) if user else None

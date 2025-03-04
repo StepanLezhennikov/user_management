@@ -23,7 +23,9 @@ async def create_role(
     try:
         await role_service.create(role_create)
     except RoleAlreadyExistsError:
-        raise HTTPException(status_code=409, detail="Role already exists")
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="Role already exists"
+        )
     return role_create
 
 
@@ -39,7 +41,9 @@ async def get_role(
     try:
         roles = await role_service.get(**(role_filter.model_dump()))
     except RoleNotFoundError:
-        raise HTTPException(status_code=404, detail="Role not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Role not found"
+        )
 
     return roles
 
@@ -54,7 +58,9 @@ async def update_role(
     try:
         updated_role = await role_service.update(role_id, role_update)
     except RoleNotFoundError:
-        raise HTTPException(status_code=404, detail="Role not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Role not found"
+        )
 
     return updated_role
 
@@ -68,6 +74,8 @@ async def delete_role(
     try:
         deleted_role = await role_service.delete(role_id)
     except RoleNotFoundError:
-        raise HTTPException(status_code=404, detail="Role not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Role not found"
+        )
 
     return deleted_role

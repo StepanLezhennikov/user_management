@@ -32,7 +32,9 @@ async def request_password_reset(
     try:
         user = await user_service.get(email=str(email))
     except UserNotFoundError:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
     reset_token = jwt_service.create_reset_token({"user_id": user.id})
     await email_service.send_password_reset_link(email, reset_token)
 
@@ -56,12 +58,18 @@ async def password_reset(
         await user_service.reset_password(int(payload["user_id"]), hashed_password)
 
     except ExpiredSignatureException:
-        raise HTTPException(status_code=401, detail="Expired refresh token")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Expired refresh token"
+        )
 
     except InvalidSignatureException:
-        raise HTTPException(status_code=401, detail="Invalid refresh token")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token"
+        )
 
     except UserNotFoundError:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
 
     return CustomResponse(message="Password reset successfully")

@@ -17,6 +17,12 @@ class UserCreate(UserBase):
     roles: list[str]
 
 
+class DeletedUser(UserBase):
+    id: int
+    is_blocked: bool
+    hashed_password: str
+
+
 class User(UserBase):
     id: int
     is_blocked: bool = False
@@ -36,3 +42,16 @@ class UserAuthenticated(UserForToken):
 class UserSignIn(BaseModel):
     email: EmailStr
     password: str
+
+
+class UserUpdate(UserBase):
+    pass
+
+
+class UserFilter(BaseModel):
+    id: int | None = None
+    username: str | None = None
+    email: EmailStr | None = None
+    first_name: str | None = None
+    last_name: str | None = None
+    is_blocked: bool | None = None

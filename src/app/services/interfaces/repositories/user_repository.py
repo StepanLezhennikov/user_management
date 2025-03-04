@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 
-from app.schemas.user import User, UserCreate
+from app.schemas.user import User, UserCreate, DeletedUser
+from app.schemas.sort_filter import SortBy, SortOrder
 
 
 class AUserRepository(ABC):
@@ -13,9 +14,23 @@ class AUserRepository(ABC):
         pass
 
     @abstractmethod
+    async def get_all(
+        self, sort_by: SortBy, sort_order: SortOrder, limit: int, offset: int, **filters
+    ) -> list[User]:
+        pass
+
+    @abstractmethod
     async def get_permissions(self, email: str) -> list[str] | None:
         pass
 
     @abstractmethod
+    async def update(self, user_id: int, **values) -> User | None:
+        pass
+
+    @abstractmethod
     async def update_password(self, user_id: int, new_hashed_password: str) -> str:
+        pass
+
+    @abstractmethod
+    async def delete(self, user_id: int) -> DeletedUser | None:
         pass
